@@ -1,0 +1,1658 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>norokeru</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@700;800;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@700;900&display=swap" rel="stylesheet">
+<style>
+  :root{--bg:#fff;--ink:#2b2630;--muted:#9a93a0;--line:#f0ecf2;
+    --brand1:#ff7a8a;--brand2:#ff4d6d;--like:#3ed598;--nope:#ff5a6e;--shadow:0 18px 40px rgba(45,38,52,.16);}
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+  html,body{margin:0;height:100%;}
+  body{font-family:"Hiragino Sans","Hiragino Kaku Gothic ProN","Noto Sans JP",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    color:var(--ink);background:radial-gradient(120% 80% at 50% -10%,#ffe3e8 0%,#ffd0da 38%,#f6b8c6 100%);
+    display:flex;align-items:center;justify-content:center;min-height:100dvh;overflow:hidden;}
+  .phone{position:relative;width:100%;max-width:412px;height:100dvh;max-height:892px;background:var(--bg);
+    overflow:hidden;display:flex;flex-direction:column;box-shadow:var(--shadow);}
+  @media(min-width:480px){.phone{border-radius:34px;height:880px;}}
+  .brand{font-family:"Nunito",sans-serif;font-weight:900;letter-spacing:-.02em;
+    background:linear-gradient(100deg,var(--brand1),var(--brand2));-webkit-background-clip:text;background-clip:text;color:transparent;}
+  .topbar{display:flex;align-items:center;justify-content:space-between;padding:14px 18px 10px;flex:0 0 auto;}
+  .topbar .brand{font-size:26px;}
+  .topbar .menu-btn{border:0;background:transparent;font-size:13px;font-weight:700;color:var(--brand2);padding:6px;cursor:pointer;}
+
+  .deck{position:relative;flex:1 1 auto;margin:4px 16px 0;}
+  .card{position:absolute;inset:0;border-radius:22px;overflow:hidden;background:#eee;box-shadow:var(--shadow);
+    transform-origin:center bottom;will-change:transform;display:flex;flex-direction:column;justify-content:flex-end;user-select:none;touch-action:none;}
+  .card .photo{position:absolute;inset:0;background-size:cover;background-position:center;}
+  .card .placeholder{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;
+    color:#a8576b;background:linear-gradient(160deg,#ffe9ee,#ffc9d6);font-weight:700;text-align:center;padding:24px;}
+  .card .placeholder .ico{font-size:84px;line-height:1;} .card .placeholder small{opacity:.95;font-weight:600;font-size:13px;line-height:1.6;color:#b06a7c;}
+  .card .mob{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:120px;background:#fff5f7;}
+  .card .scrim{position:relative;z-index:2;background:linear-gradient(to top,rgba(0,0,0,.82),rgba(0,0,0,.38) 42%,rgba(0,0,0,0) 72%);padding:22px 20px 24px;color:#fff;}
+  .card .who{display:flex;align-items:baseline;gap:9px;}
+  .card .who .name{font-size:26px;font-weight:800;} .card .who .age{font-size:22px;font-weight:500;opacity:.95;}
+  .card .who .verified{font-size:17px;color:#5ec8ff;} .card .bio{margin-top:4px;font-size:15px;opacity:.92;line-height:1.5;}
+  .card .meta{margin-top:4px;font-size:13px;font-weight:600;opacity:.85;}
+  /* 背景の明暗に応じた文字テーマ */
+  .card.dark-bg .scrim .name,.card.dark-bg .scrim .bio{text-shadow:0 2px 10px rgba(0,0,0,.35);}
+  .card.light-bg .scrim{background:linear-gradient(to top,rgba(255,255,255,.9),rgba(255,255,255,.5) 42%,rgba(255,255,255,0) 72%);color:#2b2630;}
+  .card.light-bg .scrim .name{color:#2b2630;} .card.light-bg .scrim .bio{color:#3f3947;opacity:1;}
+  .card.light-bg .scrim .meta{color:#5d5663;opacity:1;} .card.light-bg .scrim .verified{color:#1f9bdd;}
+  .empty{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:var(--muted);font-weight:600;text-align:center;padding:30px;}
+
+  .stamp{position:absolute;top:26px;z-index:3;font-family:"Nunito",sans-serif;font-weight:900;font-size:30px;
+    padding:4px 14px;border-radius:10px;border:4px solid;opacity:0;transform:rotate(-12deg);}
+  .stamp.like{left:18px;color:var(--like);border-color:var(--like);}
+  .stamp.nope{right:18px;color:var(--nope);border-color:var(--nope);transform:rotate(12deg);}
+  .card.shake{animation:shake .4s ease;}
+  @keyframes shake{0%,100%{transform:none}25%{transform:translateX(-7px) rotate(-1.5deg)}50%{transform:translateX(6px) rotate(1.2deg)}75%{transform:translateX(-4px)}}
+
+  .actions{display:flex;align-items:center;justify-content:center;gap:24px;flex:0 0 auto;padding:18px 0 calc(16px + env(safe-area-inset-bottom));}
+  .actions button{border:0;background:#fff;cursor:pointer;border-radius:50%;box-shadow:0 8px 20px rgba(45,38,52,.16);
+    display:grid;place-items:center;transition:transform .12s ease;}
+  .actions button:active{transform:scale(.9);}
+  .btn-nope{width:62px;height:62px;font-size:28px;color:var(--nope);} .btn-like{width:74px;height:74px;font-size:34px;color:var(--like);}
+
+  /* NOPEコメントのトースト */
+  .toast{position:absolute;left:50%;transform:translateX(-50%) translateY(8px);bottom:calc(112px + env(safe-area-inset-bottom));z-index:55;
+    background:rgba(43,38,48,.92);color:#fff;font-size:13px;font-weight:600;line-height:1.5;padding:10px 16px;border-radius:14px;
+    max-width:80%;text-align:center;opacity:0;transition:opacity .25s ease,transform .25s ease;pointer-events:none;}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+  /* セットアップ */
+  .setup{position:absolute;inset:0;z-index:60;display:flex;flex-direction:column;align-items:center;gap:11px;text-align:center;
+    padding:28px 26px;overflow-y:auto;background:radial-gradient(120% 90% at 50% 0%,#fff 0%,#ffe7ec 70%,#ffd5de 100%);transition:opacity .4s,visibility .4s;}
+  .setup.hide{opacity:0;visibility:hidden;}
+  .setup>*{flex-shrink:0;}
+  .setup .brand{font-size:42px;margin-top:4px;} .setup .tag{color:var(--muted);font-size:13px;font-weight:600;margin-top:-6px;margin-bottom:2px;}
+  .setup label{font-size:13px;font-weight:700;color:#7a7280;align-self:flex-start;margin:6px 0 -3px 4px;}
+  .setup input[type=text]{width:100%;border:2px solid #ffd0da;border-radius:14px;padding:13px 16px;font-size:16px;font-family:inherit;color:var(--ink);outline:none;}
+  .setup input[type=text]:focus{border-color:var(--brand2);}
+  .pickbtn{width:100%;border:2px dashed #ffb3c2;background:#fff;border-radius:14px;padding:12px;cursor:pointer;font-family:inherit;font-weight:700;font-size:14px;color:var(--brand2);}
+  .picked{font-size:12px;color:var(--muted);min-height:14px;}
+  .picked .thumb{width:34px;height:34px;border-radius:10px;object-fit:cover;margin:0 3px 2px;vertical-align:middle;border:2px solid #ffd0da;}
+  .picked span{display:block;margin-top:4px;}
+  .nope-avatar{width:64px;height:64px;border-radius:50%;background-size:cover;background-position:center;margin:0 auto 2px;border:3px solid #ffd0da;}
+  .nope-avatar.emo{display:flex;align-items:center;justify-content:center;font-size:30px;background:#ffe9ee;}
+  .emoji-row{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;width:100%;}
+  .emoji-row button{width:46px;height:46px;border-radius:12px;border:2px solid transparent;background:#fff;font-size:24px;cursor:pointer;box-shadow:0 2px 6px rgba(0,0,0,.06);}
+  .emoji-row button.sel{border-color:var(--brand2);background:#fff0f3;}
+  .setup .start{margin-top:10px;border:0;cursor:pointer;color:#fff;font-weight:800;font-size:17px;font-family:inherit;padding:15px 46px;border-radius:40px;
+    background:linear-gradient(100deg,var(--brand1),var(--brand2));box-shadow:0 12px 26px rgba(255,77,109,.4);width:100%;}
+  .setup .skip{border:0;background:transparent;color:var(--muted);font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;}
+  .setup .note{font-size:11px;color:var(--muted);line-height:1.6;margin-bottom:10px;}
+  .divider{width:100%;height:1px;background:#ffd0da;margin:7px 0 1px;}
+
+  /* マッチ（一瞬・フェード・パーティクル） */
+  .match{position:absolute;inset:0;z-index:40;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;
+    padding:30px;color:#fff;background:linear-gradient(150deg,var(--brand2),#c81d4e);pointer-events:none;overflow:hidden;
+    opacity:0;visibility:hidden;transition:opacity .45s ease,visibility .45s;}
+  .match.show{opacity:1;visibility:visible;}
+  .match h1{font-family:"Nunito",sans-serif;font-weight:900;font-size:46px;margin:0;line-height:1.05;}
+  .match .sub{margin:6px 0 22px;font-weight:600;opacity:.95;}
+  .match .pair{display:flex;gap:14px;margin-bottom:22px;}
+  .match .pair div{width:96px;height:96px;border-radius:50%;border:3px solid #fff;background-size:cover;background-position:center;
+    background-color:rgba(255,255,255,.25);display:grid;place-items:center;font-size:46px;}
+  .match .line{background:rgba(255,255,255,.18);border-radius:18px;padding:13px 18px;font-size:17px;font-weight:600;max-width:300px;}
+  .particle{position:absolute;bottom:34%;z-index:2;pointer-events:none;animation:floatUp 1.7s ease-out forwards;}
+  @keyframes floatUp{0%{opacity:0;transform:translateY(0) scale(.6)}15%{opacity:1}100%{opacity:0;transform:translateY(-320px) rotate(35deg) scale(1.1)}}
+
+  /* メッセージ一覧 */
+  .msglist{position:absolute;inset:0;z-index:44;display:none;flex-direction:column;background:#fff;}
+  .msglist.show{display:flex;animation:fade .3s ease;}
+  @keyframes fade{from{opacity:0}to{opacity:1}}
+  .msglist .head{display:flex;align-items:center;justify-content:space-between;padding:16px 18px;border-bottom:1px solid var(--line);flex:0 0 auto;}
+  .msglist .head .brand{font-size:24px;} .msglist .head .restart{border:0;background:transparent;color:var(--muted);font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;}
+  .msglist .sub{padding:12px 18px 6px;font-size:13px;font-weight:700;color:var(--muted);}
+  .msglist .scroll{flex:1 1 auto;overflow-y:auto;}
+  .row{display:flex;align-items:center;gap:13px;padding:13px 18px;cursor:pointer;border-bottom:1px solid var(--line);}
+  .row:active{background:#fafafa;}
+  .row .avatar{width:54px;height:54px;border-radius:50%;flex:0 0 auto;background-color:#ffd5dd;
+    background-image:linear-gradient(135deg,#ffd5dd,#ffb3c2);background-size:cover;background-position:center;
+    background-repeat:no-repeat;display:grid;place-items:center;font-size:26px;overflow:hidden;}
+  .row .txt{flex:1;min-width:0;} .row .txt b{font-size:16px;}
+  .row .txt span{display:block;font-size:13px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .row .time{font-size:11px;color:var(--muted);flex:0 0 auto;}
+
+  /* トークルーム（会話ゲーム） */
+  .chat{position:absolute;inset:0;z-index:48;display:none;flex-direction:column;background:#f3eef5;overflow:hidden;}
+  .chat.show{display:flex;animation:fade .3s ease;}
+  .chat .head{display:flex;align-items:center;gap:12px;padding:12px 16px;background:#fff;border-bottom:1px solid var(--line);flex:0 0 auto;}
+  .chat .head .back{border:0;background:transparent;font-size:24px;color:var(--brand2);cursor:pointer;padding:2px 6px;}
+  .chat .head .avatar{width:42px;height:42px;border-radius:50%;background-color:#ffd5dd;
+    background-image:linear-gradient(135deg,#ffd5dd,#ffb3c2);background-size:cover;background-position:center;
+    background-repeat:no-repeat;display:grid;place-items:center;font-size:22px;flex:0 0 auto;overflow:hidden;}
+  .chat .head .hwrap{flex:1;min-width:0;} .chat .head b{font-size:15px;}
+  .chat .head .afflabel{font-size:10px;color:var(--brand2);font-weight:700;}
+  .affection{height:6px;background:#f0ecf2;border-radius:4px;margin-top:3px;overflow:hidden;}
+  .affection .fill{height:100%;width:0;background:linear-gradient(90deg,var(--brand1),var(--brand2));transition:width .55s cubic-bezier(.2,.8,.2,1);border-radius:4px;}
+  .chat .body{flex:1 1 auto;overflow-y:auto;padding:18px 14px;display:flex;flex-direction:column;gap:9px;position:relative;}
+  .bubble{max-width:76%;padding:11px 15px;border-radius:18px;font-size:15px;line-height:1.5;animation:pop .25s ease;}
+  @keyframes pop{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+  .bubble.them{align-self:flex-start;background:#fff;border-bottom-left-radius:5px;box-shadow:0 1px 3px rgba(0,0,0,.06);}
+  .bubble.me{align-self:flex-end;background:linear-gradient(100deg,var(--brand1),var(--brand2));color:#fff;border-bottom-right-radius:5px;}
+  .sysline{align-self:center;font-size:12px;color:#8a8290;background:#e8e2ec;padding:5px 13px;border-radius:13px;animation:pop .25s ease;}
+  .choices{display:flex;flex-wrap:wrap;gap:8px;padding:13px 14px calc(14px + env(safe-area-inset-bottom));background:#fff;border-top:1px solid var(--line);flex:0 0 auto;min-height:64px;}
+  .choices button{flex:1 1 calc(50% - 8px);border:1.5px solid #ffd0da;background:#fff;border-radius:14px;padding:12px 8px;font-size:14px;font-family:inherit;cursor:pointer;font-weight:600;color:var(--ink);transition:transform .1s;}
+  .choices button:active{transform:scale(.95);background:#fff0f3;}
+  .choices button .e{font-size:18px;margin-right:5px;}
+  .choices .endbtn{flex:1 1 100%;border:0;color:#fff;background:linear-gradient(100deg,var(--brand1),var(--brand2));font-weight:800;font-size:15px;padding:14px;border-radius:14px;}
+  .dchip{font-size:10px;font-weight:800;} .dchip.up{color:#2bb381;} .dchip.down{color:#e0556a;}
+
+  /* シート */
+  .sheet{position:absolute;inset:0;z-index:50;display:none;align-items:flex-end;background:rgba(20,15,25,.5);}
+  .sheet.show{display:flex;animation:fade .25s ease;}
+  .sheet .inner{width:100%;background:#fff;border-radius:24px 24px 0 0;padding:26px 24px 30px;animation:rise .3s cubic-bezier(.2,.8,.2,1);}
+  @keyframes rise{from{transform:translateY(40px);opacity:.4}to{transform:none;opacity:1}}
+  .sheet h2{margin:0 0 6px;font-size:20px;} .sheet p{font-size:14px;line-height:1.7;color:#5a5360;margin:8px 0;}
+  .battle-rivals{display:flex;flex-direction:column;align-items:center;gap:8px;margin:16px 0;}
+  .battle-rivals .vs{font-family:"Nunito",sans-serif;font-weight:900;font-size:22px;color:var(--nope);}
+  .battle-rivals .pair-row{display:flex;align-items:center;gap:16px;font-size:46px;} .battle-rivals .pair-row .bond{font-size:30px;}
+  .battle-rivals .partner-name{font-size:13px;font-weight:700;color:#5a5360;}
+  .battle-rivals .partner-age{font-size:12px;color:var(--muted);}
+  .battle-rivals .rel{font-size:12.5px;color:var(--muted);text-align:center;line-height:1.6;max-width:300px;}
+  .battle-rivals .fight{font-size:12px;color:#c2566c;background:#fff0f3;border-radius:10px;padding:6px 10px;text-align:center;line-height:1.6;max-width:300px;}
+  .sheet .row2{display:flex;gap:10px;margin-top:14px;}
+  .sheet .btn{flex:1;border:0;cursor:pointer;font-family:inherit;font-weight:800;font-size:16px;padding:15px;border-radius:14px;}
+  .sheet .btn.primary{color:#fff;background:linear-gradient(100deg,var(--brand1),var(--brand2));} .sheet .btn.ghost{background:#f0ecf2;color:#6a626f;}
+  .lose-emoji{font-size:54px;text-align:center;margin:6px 0;}
+
+  /* 写真トリミング */
+  #cropSheet{z-index:70;}
+  .cropbox{position:relative;width:240px;height:240px;margin:10px auto 12px;overflow:hidden;border-radius:18px;background:#1a151d;touch-action:none;cursor:grab;}
+  .cropbox img{position:absolute;max-width:none;user-select:none;-webkit-user-drag:none;pointer-events:none;}
+  .cropring{position:absolute;inset:6px;border-radius:50%;border:2px dashed rgba(255,255,255,.6);pointer-events:none;}
+  #cropZoom{width:100%;accent-color:var(--brand2);margin:2px 0 4px;}
+  .cropcount{font-size:12px;color:var(--muted);margin:0;text-align:center;}
+  .cropnote{font-size:11px;color:var(--muted);text-align:center;line-height:1.6;margin:6px 0 0;}
+  .ceo{display:flex;gap:14px;align-items:center;margin:14px 0;}
+  .ceo .avatar{width:60px;height:60px;border-radius:50%;flex:0 0 auto;font-size:30px;background:linear-gradient(135deg,#ffd5dd,#ffb3c2);display:grid;place-items:center;}
+  .ceo b{font-size:16px;} .ceo span{font-size:12px;color:var(--muted);}
+  /* 相性診断広告バナー */
+  .compat-ad{margin:12px 14px 10px;padding:13px 14px;border-radius:18px;background:linear-gradient(100deg,#fff3f6,#ffe1e8);
+    border:1px solid #ffd0da;box-shadow:0 6px 16px rgba(45,38,52,.08);cursor:pointer;}
+  .compat-ad .adtag{display:inline-block;font-size:10px;font-weight:800;color:#fff;
+    background:linear-gradient(100deg,var(--brand1),var(--brand2));padding:3px 8px;border-radius:999px;margin-bottom:5px;}
+  .compat-ad b{display:block;font-size:15px;}
+  .compat-ad span{display:block;font-size:12px;color:var(--muted);margin-top:3px;}
+  /* ルーム行の状態表示 */
+  .row .badge{font-size:10px;color:#fff;background:var(--brand2);border-radius:999px;padding:3px 7px;margin-top:4px;display:inline-block;}
+  .row .badge.done{background:#8c8492;}
+  .row .badge.fail{background:#6c6570;}
+  .row .badge.mob{background:#7c6de8;}
+  .row .badge.read{background:#fff;color:#9a93a0;border:1px solid #d8d2dc;}
+  /* 結果オーバーレイ */
+  .resultOverlay{position:absolute;inset:0;z-index:90;display:none;align-items:center;justify-content:center;
+    background:rgba(35,25,35,.42);padding:24px;}
+  .resultOverlay.show{display:flex;animation:fade .22s ease;}
+  .resultCard{width:min(86%,320px);background:#fff;border-radius:26px;padding:28px 22px 22px;text-align:center;
+    box-shadow:0 20px 54px rgba(0,0,0,.24);animation:resultPop .36s cubic-bezier(.2,.9,.2,1.2);}
+  .resultCard.success{border:3px solid #ffd0da;}
+  .resultCard.fail{border:3px solid #d8d2dc;}
+  .resultPercent{font-family:"Nunito",sans-serif;font-size:56px;font-weight:900;line-height:1;
+    background:linear-gradient(100deg,var(--brand1),var(--brand2));-webkit-background-clip:text;background-clip:text;color:transparent;}
+  .resultText{font-size:15px;font-weight:700;line-height:1.7;margin-top:12px;}
+  .resultClose{margin-top:18px;border:0;border-radius:999px;padding:11px 22px;color:#fff;
+    background:linear-gradient(100deg,var(--brand1),var(--brand2));font-weight:800;font-family:inherit;cursor:pointer;}
+  @keyframes resultPop{from{transform:scale(.86);opacity:0;}to{transform:scale(1);opacity:1;}}
+  /* 相性診断フォーム */
+  #compatSheet .inner{max-height:88%;overflow-y:auto;}
+  .compatLabel,.compatSectionTitle{display:block;font-size:12px;font-weight:800;color:#7a7280;margin:10px 0 6px;}
+  .compatInput{width:100%;border:2px solid #ffd0da;border-radius:14px;padding:12px 14px;font-family:inherit;font-size:15px;outline:none;}
+  .compatInput:focus{border-color:var(--brand2);}
+  .compatEmojiGrid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:8px;}
+  .compatEmojiGrid button{border:2px solid #ffd0da;background:#fff;border-radius:13px;padding:9px 4px;font-size:22px;cursor:pointer;}
+  .compatEmojiGrid button.sel{border-color:var(--brand2);background:#fff0f3;}
+  .compatLoading{font-size:12px;color:var(--muted);text-align:center;min-height:20px;margin-top:10px;}
+  .compatResult{display:none;background:#fff6f8;border:1px solid #ffd0da;border-radius:18px;padding:14px;margin-top:12px;text-align:center;}
+  .compatResult.show{display:block;}
+  .compatResult .score{font-family:"Nunito",sans-serif;font-size:38px;font-weight:900;color:var(--brand2);}
+  .compatResult b{display:block;font-size:16px;margin-top:4px;}
+  .compatResult p{font-size:13px;color:#5a5360;line-height:1.7;}
+  /* 関係性選択・性格パラメータ */
+  .relation-row{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;width:100%;}
+  .relation-row button{border:2px solid #ffd0da;background:#fff;border-radius:14px;padding:10px 8px;font-family:inherit;font-weight:800;color:var(--ink);cursor:pointer;line-height:1.5;}
+  .relation-row button.sel{border-color:var(--brand2);background:#fff0f3;color:var(--brand2);}
+  .personality-box{width:100%;display:grid;gap:10px;}
+  .param-row{background:#fff;border:1px solid #ffd0da;border-radius:14px;padding:10px;text-align:left;}
+  .param-row .param-head{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:12px;font-weight:800;color:#6a626f;}
+  .param-row .param-head span:first-child{
+    font-family:"Zen Maru Gothic","Hiragino Maru Gothic ProN","ヒラギノ丸ゴ ProN W4",sans-serif;
+    font-size:15px;font-weight:900;
+    background:linear-gradient(45deg,#feda75,#fa7e1e,#d62976,#962fbf,#4f5bd5);
+    -webkit-background-clip:text;background-clip:text;color:transparent;}
+  .param-row .scale{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-top:8px;}
+  .param-row .scale button{border:1px solid #ffd0da;background:#fff;border-radius:10px;padding:7px 0;font-weight:800;color:var(--ink);font-family:inherit;cursor:pointer;}
+  .param-row .scale button.sel{border-color:var(--brand2);background:#fff0f3;color:var(--brand2);}
+  #personalitySheet{z-index:80;}
+  #personalitySheet .inner{max-height:88%;overflow-y:auto;}
+  #personalitySheet h2{color:var(--brand2);}
+  @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important;}}
+</style>
+</head>
+<body>
+<div class="phone">
+  <div class="topbar"><div class="brand">norokeru</div><button class="menu-btn" id="ceoBtn">運営会社</button></div>
+  <div class="deck" id="deck"></div>
+  <div class="actions"><button class="btn-nope" id="nopeBtn" aria-label="なし">✕</button><button class="btn-like" id="likeBtn" aria-label="いいね">♥</button></div>
+  <div class="toast" id="toast"></div>
+  <!-- 好感度結果オーバーレイ -->
+  <div class="resultOverlay" id="resultOverlay">
+    <div class="resultCard" id="resultCard">
+      <div class="resultPercent" id="resultPercent">100%</div>
+      <div class="resultText" id="resultText">今日は満足して寝たみたいです。</div>
+      <button class="resultClose" id="resultClose">閉じる</button>
+    </div>
+  </div>
+
+  <!-- セットアップ -->
+  <div class="setup" id="setup">
+    <div class="brand">norokeru</div>
+    <div class="tag">運命の人だけに、出会えるアプリ。</div>
+    <label>お相手のお名前</label>
+    <input type="text" id="nameInput" placeholder="例：たろう" maxlength="12">
+    <label>お相手の性別</label>
+    <div id="aiteGender" style="display:flex;flex-shrink:0;min-height:48px;width:100%;background:#fff;border-radius:14px;overflow:hidden;border:2px solid #ffd0da;"></div>
+    <label>この人との関係性</label>
+    <div class="relation-row" id="relationshipPicker"></div>
+    <button class="pickbtn" id="pickBtn">📷　お相手の写真を選ぶ（3〜5枚）</button>
+    <input type="file" id="photoInput" accept="image/*" multiple style="display:none">
+    <div class="picked" id="pickedInfo">写真は任意です</div>
+    <div class="divider"></div>
+    <label>あなたのアイコン（絵文字を選ぶ）</label>
+    <div class="emoji-row" id="meEmojis"></div>
+    <button class="pickbtn" id="mePickBtn">📷　自分の写真にする（任意）</button>
+    <input type="file" id="mePhotoInput" accept="image/*" style="display:none">
+    <div class="picked" id="mePickedInfo"></div>
+    <button class="start" id="startBtn">はじめる</button>
+    <button class="skip" id="skipBtn">設定せずに試す</button>
+    <div class="note">写真はどこにも送信されません。この端末の中だけで表示されます。<br>© norokeru, Inc.　代表取締役 チャン・コウメ</div>
+  </div>
+
+  <!-- マッチ -->
+  <div class="match" id="match">
+    <div class="pair"><div id="matchMe">🙂</div><div id="matchYou"></div></div>
+    <h1>It's a Match!</h1><div class="sub" id="matchSub">運命の相手が見つかりました</div>
+    <div class="line" id="matchLine">やっと見つけたね…</div>
+  </div>
+
+  <!-- メッセージ一覧 -->
+  <div class="msglist" id="msglist">
+    <div class="head"><div class="brand">メッセージ</div><button class="restart" id="restartBtn">もう一度さがす</button></div>
+    <div class="sub" id="msgSub">運命の相手とつながりました</div>
+    <div class="scroll" id="msgScroll"></div>
+  </div>
+
+  <!-- トークルーム -->
+  <div class="chat" id="chat">
+    <div class="head"><button class="back" id="chatBack">‹</button>
+      <div class="avatar" id="chatAvatar">❤️</div>
+      <div class="hwrap"><b id="chatName">あなたのパートナー</b>
+        <div class="afflabel" id="affLabel">♥ 好感度</div>
+        <div class="affection"><div class="fill" id="affFill"></div></div></div></div>
+    <div class="body" id="chatBody"></div>
+    <div class="choices" id="choices"></div>
+  </div>
+
+  <!-- バトル -->
+  <div class="sheet" id="battleSheet"><div class="inner" id="battleInner"></div></div>
+  <!-- 写真トリミング -->
+  <div class="sheet" id="cropSheet"><div class="inner">
+    <h2>アイコンの範囲を調整</h2>
+    <p class="cropcount" id="cropCount"></p>
+    <div class="cropbox" id="cropBox"><img id="cropImg" alt=""><div class="cropring"></div></div>
+    <input type="range" id="cropZoom" min="100" max="300" value="100">
+    <p class="cropnote">ドラッグで位置調整・スライダーで拡大できます。<br>写真はどこにも送信されません。この端末の中だけで表示されます。</p>
+    <div class="row2"><button class="btn ghost" id="cropReset">やり直し</button><button class="btn primary" id="cropOk">決定</button></div>
+  </div></div>
+  <!-- 運命の人NOPE確認 -->
+  <div class="sheet" id="nopeSheet"><div class="inner" id="nopeInner"></div></div>
+  <!-- 相性診断 -->
+  <div class="sheet" id="compatSheet">
+    <div class="inner">
+      <h2>ふたりの相性診断</h2>
+      <p>名前と性格を入れるだけ。結果はだいたい分かっています。</p>
+      <label class="compatLabel">あなたの名前</label>
+      <input class="compatInput" id="compatYourName" type="text" placeholder="あなた">
+      <label class="compatLabel">相手の名前</label>
+      <input class="compatInput" id="compatPartnerName" type="text" placeholder="相手">
+      <div class="compatSectionTitle">あなたの性格</div>
+      <div class="compatEmojiGrid" id="compatYourType"></div>
+      <div class="compatSectionTitle">相手の性格</div>
+      <div class="compatEmojiGrid" id="compatPartnerType"></div>
+      <button class="btn primary" id="compatStart">診断する</button>
+      <div class="compatLoading" id="compatLoading"></div>
+      <div class="compatResult" id="compatResult"></div>
+      <div class="row2"><button class="btn ghost" id="compatClose">メッセージに戻る</button></div>
+    </div>
+  </div>
+  <!-- 性格設定ポップアップ -->
+  <div class="sheet" id="personalitySheet">
+    <div class="inner">
+      <h2>会話の性格設定</h2>
+      <p>この人は、どんな返事をする人ですか。<br>そのまま（標準の3）でも始められます。</p>
+      <div class="personality-box" id="personalityBox"></div>
+      <button class="btn primary" id="personalityStart">この性格ではじめる</button>
+    </div>
+  </div>
+  <!-- 運営会社 -->
+  <div class="sheet" id="ceoSheet"><div class="inner">
+    <h2>運営会社について</h2>
+    <div class="ceo"><div class="avatar">👩‍💼</div><div><b>チャン・コウメ</b><br><span>代表取締役 CEO</span></div></div>
+    <p>「妥協なんて、人生に必要ありません。」業界に旋風を巻き起こしてきたやり手の女社長・チャン・コウメが、本気で立ち上げたマッチングアプリ。それが norokeru です。</p>
+    <p>当社のマッチング精度は業界の常識を超える<b>100%</b>。あなたに表示されるのは、運命の相手ただひとり。寄り道は、させません。</p>
+    <div class="row2"><button class="btn primary" data-ceoclose>閉じる</button></div></div></div>
+</div>
+
+<script>
+/* ヘルパー */
+function pickRandom(arr){return arr[Math.floor(Math.random()*arr.length)];}
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+
+/* お相手（年齢などの個人情報は持たない） */
+const lover={name:"あなたのパートナー",gender:"female",photos:[],relationshipType:"lover",
+  personality:{flexible:3,kind:3,delicate:3,bright:3,tsukkomi:3,damp:3}};
+
+/* 関係性 */
+const relationshipTypes=[
+  {id:"lover",label:"恋人",emoji:"💘",description:"恋愛関係として表示します。"},
+  {id:"family",label:"家族",emoji:"🏠",description:"家族や身近な人として表示します。"},
+  {id:"oshi",label:"推し",emoji:"✨",description:"推し・大事に見ている存在として表示します。"},
+  {id:"partner",label:"パートナー",emoji:"🤝",description:"恋愛に限らない、大事な相手として表示します。"}];
+
+const relationshipCopy={
+  lover:{targetName:"好きな人",matchText:"運命の相手が見つかりました",msgSub:"運命の相手と、いくつかの会話があります",
+    affectionLabel:"♥ 好感度",
+    resultSuccess:["今日は満足して寝たみたいです。","明日も話したいみたいです。","今日はいい感じに終わりました。","また明日、普通に連絡が来そうです。"],
+    resultFail:["今日は疲れてしまったようです。","少しそっとしておくことにしました。","返事が少なくなりました。","今日はここまでにした方がよさそうです。"]},
+  family:{targetName:"家族",matchText:"大事な相手が表示されました",msgSub:"家族との会話があります",
+    affectionLabel:"安心度",
+    resultSuccess:["少し安心したようです。","今日は普通に話せました。","また何かあれば連絡が来そうです。","用件より少し多く話せました。"],
+    resultFail:["今日は話す元気がなさそうです。","いったん距離を置いた方がよさそうです。","返事がかなり短くなりました。","また別の日にした方がよさそうです。"]},
+  partner:{targetName:"パートナー",matchText:"大事な相手が見つかりました",msgSub:"パートナーとの会話があります",
+    affectionLabel:"信頼度",
+    resultSuccess:["今日はうまく話せたようです。","信頼が少し増えました。","また普通に連絡が来そうです。","今日は話してよかったようです。"],
+    resultFail:["今日は噛み合わなかったようです。","少し休んだ方がよさそうです。","返事が事務的になりました。","一度、会話を切り上げることにしました。"]},
+  oshi:{targetName:"推し",matchText:"表示対象が確定しました",msgSub:"推しの周りにある話を少し見ます",
+    affectionLabel:"観察度",
+    resultSuccess:["今日は少しだけ近くで見られた気がします。","知らなかった話をひとつ聞けました。","遠くにいるままで、少し満足しました。","今日はこれくらいで十分そうです。","その人の一日を少しだけ想像できました。","近づきすぎずに終われました。"],
+    resultFail:["少し踏み込みすぎたようです。","今日は遠くから見る方がよさそうです。","知りたい気持ちが少し先に出ました。","その人の生活に近づきすぎました。","今日は画面を閉じた方がよさそうです。","距離を戻すことにしました。"]}};
+function getRelationCopy(){return relationshipCopy[lover.relationshipType]||relationshipCopy.lover;}
+
+/* 性格パラメータ（1〜5・3が標準） */
+const personalityParams=[
+  {id:"flexible",label:"気難しさ",lowLabel:"気難しい",highLabel:"柔軟"},
+  {id:"kind",label:"優しさ",lowLabel:"いじわる",highLabel:"優しい"},
+  {id:"delicate",label:"デリカシー",lowLabel:"ノンデリ",highLabel:"デリカシーあり"},
+  {id:"bright",label:"明るさ",lowLabel:"暗い",highLabel:"明るい"},
+  {id:"tsukkomi",label:"ツッコミ",lowLabel:"ボケ",highLabel:"ツッコミ"},
+  {id:"damp",label:"ジメジメ",lowLabel:"サバサバ",highLabel:"ジメジメ"}];
+
+/* 恋人カード用：曖昧な距離・状態ラベル */
+const loverMetaLabels=[
+  "あなたの近く","だいたい生活圏内","よくいる場所：だいたい近く","距離：近いようで近い","最終表示：さっき",
+  "状態：たぶん元気","関係：説明不要","場所：いつものあたり","現在地：言わなくてもだいたい分かる","表示対象：この人だけ"];
+
+/* 恋人カード用：一言メッセージ */
+const loverBioLines=[
+  "あなたの近くにいます。","だいたい連絡がつきます。","よく同じ場所にいます。","最近、少し忙しそうです。",
+  "たぶん今日もがんばっています。","近くにいると、少し安心します。","写真を撮られるのは、少し苦手です。",
+  "返事は早かったり遅かったりします。","ごはんの相談をよくします。","なんとなく、いつもの人です。",
+  "たまに変なことを言います。","静かに機嫌がいい日があります。","疲れていると、口数が減ります。",
+  "近所のコンビニに詳しいです。","好きなものがわりとはっきりしています。","無理していないときが一番いいです。",
+  "会うと、だいたい普通の話をします。","帰る場所の話をします。","今日はまだ会っていません。","表示される相手は、この人だけです。"];
+
+/* 写真未登録時のプレースホルダー */
+const loverPlaceholderIcons=["❤️","💌","🌙","🫶","💭","📷"];
+const loverPlaceholderLines=[
+  "まだ写真はありません。","写真はあとで追加できます。","この人だけ表示されます。",
+  "いまはイメージでお送りします。","顔は分かっている前提です。","写真がなくても、たぶんこの人です。"];
+let loverPlaceholder=null;
+function makeLoverPlaceholder(){if(loverPlaceholder)return loverPlaceholder;
+  const emoji=pickRandom(loverPlaceholderIcons);let icon=null;
+  try{const c=document.createElement('canvas');c.width=512;c.height=512;const x=c.getContext('2d');
+    const g=x.createLinearGradient(0,0,512,512);g.addColorStop(0,'#ffe9ee');g.addColorStop(1,'#ffc3d0');
+    x.fillStyle=g;x.fillRect(0,0,512,512);x.font='250px serif';x.textAlign='center';x.textBaseline='middle';
+    x.fillText(emoji,256,280);icon=c.toDataURL('image/png');}catch(e){}
+  loverPlaceholder={emoji,icon};return loverPlaceholder;}
+
+/* 背景の明るさ判定（文字が乗る下部領域の平均輝度） */
+function getBrightness(r,g,b){return (r*299+g*587+b*114)/1000;}
+function detectLightBg(img){try{const c=document.createElement('canvas');c.width=24;c.height=12;const x=c.getContext('2d');
+  x.drawImage(img,0,img.naturalHeight*0.6,img.naturalWidth,img.naturalHeight*0.4,0,0,24,12);
+  const d=x.getImageData(0,0,24,12).data;let s=0;
+  for(let i=0;i<d.length;i+=4)s+=getBrightness(d[i],d[i+1],d[i+2]);
+  return s/(d.length/4)>170;}catch(e){return false;}}
+const me={emoji:"🙂",photo:null,icon:null};
+const ME_EMOJIS=["🙂","😎","🥰","😺","🐶","🌸","⭐️","🦊","🍀","🌙"];
+
+/* マッチ時のセリフ（共通＋性別で出し分け） */
+const MATCH_LINES={
+  common:["やっと見つけたね…","はいはい、今日も素敵ですね。","あれ、これいつの写真だっけ？","また会えた。運命だね。","え、もう好きかも。","今日のあなたも、最高。","ねえ、運命って信じる？","ずっと探してたんだよ。","この人、絶対いい人だ。"],
+  male:["なんだこのイケメンは⁉️","かっこよすぎでは…？","罪な顔してるなぁ。"],
+  female:["なんだこの美女は⁉️","美しすぎる…！","かわいいが渋滞してる。"],
+  other:["なんだこの存在は⁉️","尊い…！","沼の予感しかしない。"]};
+function matchLine(){const g=MATCH_LINES[lover.gender]||[];const pool=MATCH_LINES.common.concat(g);return pool[Math.floor(Math.random()*pool.length)];}
+
+/* モブ */
+const BONDS=["💖","🤝","💕","🫶","😊"];
+const mobs=[
+  {emoji:"🥷",name:"忍者",age:"28",bio:"夜に出て、朝には戻ります。連絡は煙でください。",partnerEmoji:"🏯",partnerName:"城",partnerAge:"600",
+    relationship:"帰る場所があるので、任務に出られます。",fightReason:"ただいまを言う前に天井裏へ入った。",
+    battleLosses:["城壁が厚すぎて、気持ちが届きませんでした。","忍者は任務中でした。恋愛どころではありません。","天守閣から見守られて、静かに敗北しました。"],
+    nopeComments:["賢明です。城持ちは責任が重いです。","相手も望んでいないようです。任務があります。","深入りしない判断、すばらしいです。"]},
+  {emoji:"🍈",name:"メロン",age:"4",bio:"甘さだけでは、やっていけません。",partnerEmoji:"🥩",partnerName:"生ハム",partnerAge:"2",
+    relationship:"たまに一緒に出てくる。理由は分からないけど、合っています。",fightReason:"生ハムが「結局メロンは脇役」と言った。",
+    battleLosses:["塩気と甘みの完成度に、入り込む余地がありませんでした。","前菜としてすでに成立していました。","あなたの出番は、コース料理の後半でした。"],
+    nopeComments:["賢明です。上級者向けの組み合わせです。","相手も望んでいないようです。すでに盛り付け済みです。","いったん見送って正解です。温度管理が難しいです。"]},
+  {emoji:"⛩️",name:"鳥居",age:"300",bio:"動かない関係にも、歴史があります。",partnerEmoji:"🏯",partnerName:"城",partnerAge:"600",
+    relationship:"長く一緒にいます。今さら動きません。",fightReason:"どちらが先に建ったかで揉めた。",
+    battleLosses:["由緒に負けました。","築年数の差が、そのまま関係の深さでした。","観光ルートに組み込まれており、割り込めませんでした。"],
+    nopeComments:["賢明です。文化財への接近には許可が必要です。","相手も望んでいないようです。参拝順路が決まっています。","見守る距離がちょうどいい関係です。"]},
+  {emoji:"🥪",name:"サンドイッチ",age:"1",bio:"急いでいる日に、だいたい一緒です。",partnerEmoji:"🥛",partnerName:"牛乳",partnerAge:"1",
+    relationship:"昼に会うことが多いです。",fightReason:"牛乳が急に賞味期限の話をした。",
+    battleLosses:["昼食セットとして完成していました。","牛乳がすべてを流し込んでいきました。","パンの包容力に負けました。"],
+    nopeComments:["賢明です。もうセット販売されています。","相手も望んでいないようです。昼休みが短いです。","軽食の関係に深入りしない方がいいです。"]},
+  {emoji:"🍮",name:"プリン",age:"3",bio:"最後は受け入れるタイプです。",partnerEmoji:"🥄",partnerName:"スプーン",partnerAge:"8",
+    relationship:"最後はスプーンが来ます。プリンも分かっています。",fightReason:"スプーンがカラメルだけ先に食べた。",
+    battleLosses:["ひとすくいで世界が終わりました。","カラメルの部分だけ先に持っていかれました。","震えている間に、関係が進んでいました。"],
+    nopeComments:["賢明です。甘いだけでは危険です。","相手も望んでいないようです。すでに冷蔵されています。","見た目より繊細なので、そっとしておきましょう。"]},
+  {emoji:"🤖",name:"ロボット",age:"5",bio:"充電されると、少しやさしくなります。",partnerEmoji:"🔌",partnerName:"充電器",partnerAge:"12",
+    relationship:"充電が切れると会話が止まります。",fightReason:"充電中に別の端末を挿された。",
+    battleLosses:["電圧の相性で負けました。","バッテリー残量が、あなたより重要でした。","アップデート中のため、恋愛処理が停止しました。"],
+    nopeComments:["賢明です。規格が合わない可能性があります。","相手も望んでいないようです。現在、省電力モードです。","接続しない判断も愛です。"]},
+  {emoji:"👽",name:"宇宙人",age:"不明",bio:"地球の恋愛ルールをまだ知りません。",partnerEmoji:"🛸",partnerName:"UFO",partnerAge:"不明",
+    relationship:"遠距離カップル。終電は気にしない。",fightReason:"UFOが迎えの時間に来なかった。",
+    battleLosses:["母船から迎えが来ました。","重力が違いすぎました。","交信に失敗し、友好的な沈黙が続きました。"],
+    nopeComments:["賢明です。文化の違いがあります。","相手も望んでいないようです。母星に帰る予定です。","いまは観察対象のままでいましょう。"]},
+  {emoji:"🐶",name:"いぬ",age:"3",bio:"投げてくれる人を探しています。",partnerEmoji:"🎾",partnerName:"ボール",partnerAge:"1",
+    relationship:"ボールを見ると、話の途中でも行きます。",fightReason:"ボールが転がったきり戻ってこなかった。",
+    battleLosses:["ボールを追いかけて行ってしまいました。","しっぽの勢いで押し切られました。","おやつを持っていないことが敗因でした。"],
+    nopeComments:["賢明です。散歩の時間です。","相手も望んでいないようです。ボールしか見ていません。","かわいいですが、責任が伴います。"]},
+  {emoji:"🍙",name:"おにぎり",age:"2",bio:"落ち着く関係です。派手さはありません。",partnerEmoji:"🍵",partnerName:"お茶",partnerAge:"7",
+    relationship:"お茶があると落ち着きます。",fightReason:"お茶が急にコーヒーの話をした。",
+    battleLosses:["塩気と温度のバランスに負けました。","コンビニ棚で、すでに隣同士でした。","お茶がすべてをやさしくまとめました。"],
+    nopeComments:["賢明です。安心感が強すぎます。","相手も望んでいないようです。昼食として完成しています。","無理に崩さない方がいい組み合わせです。"]},
+  {emoji:"🦷",name:"歯",age:"28",bio:"近すぎる関係にも、距離感は必要です。",partnerEmoji:"🪥",partnerName:"歯ブラシ",partnerAge:"3ヶ月",
+    relationship:"毎日会います。たまに痛いです。",fightReason:"仕上げ磨きが雑だった。",
+    battleLosses:["歯間に入り込む隙間がありませんでした。","毎日の習慣に勝てませんでした。","磨かれているうちに、存在感が薄れました。"],
+    nopeComments:["賢明です。衛生観念が強い相手です。","相手も望んでいないようです。朝晩で予定があります。","清潔な距離を保ちましょう。"]},
+  {emoji:"🕯️",name:"ろうそく",age:"1",bio:"明るくしています。少しずつ減っています。",partnerEmoji:"🔥",partnerName:"火",partnerAge:"0",
+    relationship:"近づくと短くなるので、たまに会う。ラブラブ。",fightReason:"火が他のろうそくにも点いていた。",
+    battleLosses:["燃え尽きる覚悟が違いました。","雰囲気の良さに飲まれました。","火力が強く、会話が終わりました。"],
+    nopeComments:["賢明です。近づきすぎると危険です。","相手も望んでいないようです。すでに点火済みです。","ロマンチックですが、消火器が必要です。"]},
+  {emoji:"🧦",name:"靴下",age:"2",bio:"たまに消えます。でも戻ることもあります。",partnerEmoji:"🌀",partnerName:"洗濯機",partnerAge:"6",
+    relationship:"片方がいなくなることがあります。",fightReason:"洗濯機がまた片方だけ返した。",
+    battleLosses:["脱水の勢いで見失いました。","片方だけ残されました。","洗濯槽の深さに勝てませんでした。"],
+    nopeComments:["賢明です。片方だけになる可能性があります。","相手も望んでいないようです。現在、洗濯中です。","生活感のある関係は、意外と重いです。"]},
+  {emoji:"🦀",name:"カニ",age:"10",bio:"無口ですが、味はあります。",partnerEmoji:"🍲",partnerName:"鍋",partnerAge:"15",
+    relationship:"冬になると距離が近づきます。",fightReason:"鍋が春にも誘ってきた。",
+    battleLosses:["出汁になっていました。","沈黙のまま、鍋が完成しました。","身を守る殻ごと、季節に包まれました。"],
+    nopeComments:["賢明です。冬場は特に危険です。","相手も望んでいないようです。すでに予約されています。","手間がかかる相手です。"]},
+  {emoji:"🌵",name:"サボテン",age:"20",bio:"水は少なめで大丈夫です。",partnerEmoji:"☀️",partnerName:"太陽",partnerAge:"46億",
+    relationship:"サボテンにとって、太陽を失うととても悲しいです。",fightReason:"日差しが強すぎる日に「平等です」と言われた。",
+    battleLosses:["光合成の関係に割り込めませんでした。","距離感の取り方が完璧でした。","近づいたら刺さりました。"],
+    nopeComments:["賢明です。距離感が難しいです。","相手も望んでいないようです。日当たりを優先しています。","触れない愛もあります。"]},
+  {emoji:"📚",name:"本",age:"80",bio:"話さなくても、同じ場所にいられます。",partnerEmoji:"☕",partnerName:"コーヒー",partnerAge:"1",
+    relationship:"話さなくても同じ時間にいます。",fightReason:"コーヒーの輪じみが表紙についた。",
+    battleLosses:["余白のある関係に負けました。","しおりの位置まで決まっていました。","コーヒーの染みさえ思い出になっていました。"],
+    nopeComments:["賢明です。静かにしていた方がよさそうです。","相手も望んでいないようです。読書中です。","ページをめくる音だけで十分です。"]},
+  {emoji:"🌙",name:"月",age:"45億",bio:"近づかなくても、影響しています。",partnerEmoji:"🌊",partnerName:"海",partnerAge:"45億",
+    relationship:"離れていますが、海はかなり影響を受けています。",fightReason:"満潮の時間が約束と違った。",
+    battleLosses:["潮の満ち引きに勝てませんでした。","距離があるのに関係が深すぎました。","ロマンチックの規模が大きすぎました。"],
+    nopeComments:["賢明です。スケールが違います。","相手も望んでいないようです。満潮です。","遠くから見るのがいちばんです。"]}];
+
+/* 追加モブカップル */
+const additionalMobs=[
+  {emoji:"🤡",name:"ピエロ",age:"36",bio:"昨日も同じテントにいたようです。",partnerEmoji:"🐘",partnerName:"象",partnerAge:"48",
+    relationship:"同じテントで長く働いています。",fightReason:"象が本番中に笑わなかった。",
+    battleLosses:["象に顔を覚えられていませんでした。","ピエロの投げたパイが、あなたに当たりました。","テント裏に案内され、そのまま帰されました。"],
+    nopeComments:["テントの外で見守ることにしました。","今日は客席で十分です。","深追いするとパイが来ます。"]},
+  {emoji:"🍨",name:"アイス",age:"1",bio:"上映中はよく隣にいるようです。",partnerEmoji:"🍿",partnerName:"ポップコーン",partnerAge:"1",
+    relationship:"上映中だけ隣にいます。",fightReason:"ポップコーンの音が少し大きかった。",
+    battleLosses:["あなたの席だけありませんでした。","本編前に溶けたアイスを渡されました。","ポップコーンのかけらが歯に挟まりました。"],
+    nopeComments:["予告だけ見て帰りました。","暗い席には近づかない方がよさそうです。","上映中なので静かにしました。"]},
+  {emoji:"🥍",name:"ラクロス",age:"163",bio:"寒いところでよく会うようです。",partnerEmoji:"🍁",partnerName:"メープル",partnerAge:"157",
+    relationship:"カナダで知り合いました。",fightReason:"メープルが甘すぎると言われた。",
+    battleLosses:["ルール説明の途中で試合が終わりました。","メープルをかけられ、少し黙りました。","「カナダの話だから」と言われました。"],
+    nopeComments:["国の話なので見送りました。","寒いので帰りました。","ルールを覚える前に撤退しました。"]},
+  {emoji:"🐦",name:"鳩",age:"1",bio:"水が引いたあと、また一緒にいたようです。",partnerEmoji:"🫒",partnerName:"オリーブ",partnerAge:"7000",
+    relationship:"古い知り合いです。枝のやり取りがあります。",fightReason:"鳩がまたすぐ飛んでいった。",
+    battleLosses:["鳩があなたを素通りして帰りました。","オリーブの枝で軽く追い払われました。","「陸地が先です」と言われました。"],
+    nopeComments:["平和に見送りました。","帰る場所があるようです。","枝だけ見ておきました。"]},
+  {emoji:"🩰",name:"バレエシューズ",age:"14",bio:"どこかで一緒に暖炉に入った記憶があるようです。",partnerEmoji:"✏️",partnerName:"鉛筆",partnerAge:"128",
+    relationship:"暖炉の前で出会いました。",fightReason:"鉛筆が「自分にも芯がある」と言った。",
+    battleLosses:["灰の話に入れませんでした。","鉛筆の芯でつつかれました。","あなたの頭に鉛筆が刺さりました。"],
+    nopeComments:["暖炉の話はやめておきました。","芯のある関係でした。","燃えずに済みました。"]},
+  {emoji:"🧲",name:"磁石",age:"80",bio:"洗濯機の裏でよく会うようです。",partnerEmoji:"🧦",partnerName:"靴下",partnerAge:"2",
+    relationship:"洗濯機の裏で会っています。",fightReason:"どちらも「自分は引き寄せていない」と言った。",
+    battleLosses:["靴下の片方だけ渡されました。","洗濯機の裏に落とされました。","磁石にくっついたまま帰れませんでした。"],
+    nopeComments:["洗濯機の裏は見ないことにしました。","片方だけなら大丈夫です。","引き寄せられる前に帰りました。"]},
+  {emoji:"🥔",name:"じゃがいも",age:"1",bio:"昔、変な実験で一緒だったようです。",partnerEmoji:"📡",partnerName:"アンテナ",partnerAge:"25",
+    relationship:"昔の実験で知り合いました。",fightReason:"じゃがいもが「自分を電池扱いするな」と言った。",
+    battleLosses:["じゃがいもに電極を刺されました。","電波は拾えました。あなたの好意は圏外でした。","青いじゃがいもになって齧らされました。"],
+    nopeComments:["実験には参加しませんでした。","電波が悪いのでやめました。","青くなる前に帰りました。"]},
+  {emoji:"📮",name:"郵便ポスト",age:"60",bio:"外で待つ時間が長いようです。",partnerEmoji:"🌵",partnerName:"サボテン",partnerAge:"20",
+    relationship:"外に立っている者同士です。",fightReason:"ポストが「自分だけ外に立っている」と言った。",
+    battleLosses:["返事は来ませんでした。","ポストに投函されました。","トゲを飛ばされました。"],
+    nopeComments:["返事を待つのはやめました。","外は暑いので帰りました。","投函口には近づきませんでした。"]},
+  {emoji:"🧊",name:"氷",age:"0",bio:"待っている間に片方が溶けるようです。",partnerEmoji:"📞",partnerName:"黒電話",partnerAge:"70",
+    relationship:"待つことに慣れている同士です。",fightReason:"氷が「待っている間に自分だけ減る」と言った。",
+    battleLosses:["黒電話が鳴ったので出たら、無言でした。","氷の上に座らされました。","通報されました。"],
+    nopeComments:["鳴る前に帰りました。","冷えてきたのでやめました。","通報される前に離れました。"]},
+  {emoji:"🎲",name:"サイコロ",age:"2000",bio:"賭け事のあと、同じ部屋に残るようです。",partnerEmoji:"🪑",partnerName:"椅子",partnerAge:"50",
+    relationship:"賭場の閉店後も一緒にいます。",fightReason:"サイコロが「自分ばかり責任を取らされる」と言った。",
+    battleLosses:["座ろうとした瞬間、椅子が移動しました。","あなたは座れませんでした。そして腰を痛めました。","サイコロに変な目を出されました。"],
+    nopeComments:["座らずに帰りました。","賭けには乗りませんでした。","腰を守りました。"]},
+  {emoji:"🪜",name:"はしご",age:"35",bio:"届かないのに、たまに見上げているようです。",partnerEmoji:"🌙",partnerName:"月",partnerAge:"45億",
+    relationship:"届かない距離を保っています。",fightReason:"はしごが「もう少し低く来てほしい」と言った。",
+    battleLosses:["はしごの途中で足がすくみました。","月に「まだ早い」と言われました。","降りるときの方が怖かったです。"],
+    nopeComments:["高いところはやめました。","月は遠くから見ました。","登らずに済みました。"]},
+  {emoji:"🧿",name:"お守り",age:"5",bio:"鞄の中でよく一緒にいるようです。",partnerEmoji:"🪫",partnerName:"電池切れ",partnerAge:"0",
+    relationship:"鞄の中でいつも一緒です。",fightReason:"電池切れが「守れてない」と言った。",
+    battleLosses:["お守りに効果範囲外と言われました。","充電器を探している間に終わりました。","あなたも残量不足でした。"],
+    nopeComments:["充電してから考えることにしました。","鞄の中はそっとしておきました。","今日は効果範囲外でした。"]},
+  {emoji:"🎻",name:"バイオリン",age:"300",bio:"直接会わないのに、音の中でつながっているようです。",partnerEmoji:"🐎",partnerName:"馬",partnerAge:"12",
+    relationship:"弓の毛でつながっています。",fightReason:"馬が「自分のしっぽだけで語らないでほしい」と言った。",
+    battleLosses:["耳の肥えた馬は、人間の声が好きじゃないみたいです。","バイオリンは人間の毛髪を見て鼻で笑いました。","馬に鼻息で飛ばされました。"],
+    nopeComments:["鼻息が強そうなのでやめました。","音楽の話には入りませんでした。","しっぽの話は難しいです。"]},
+  {emoji:"🧯",name:"消火器",age:"10",bio:"舞台袖で静かに待っているようです。",partnerEmoji:"🩰",partnerName:"バレエシューズ",partnerAge:"14",
+    relationship:"舞台袖から見守る関係です。",fightReason:"消火器が「自分も赤い」と言った。",
+    battleLosses:["舞台袖から出してもらえませんでした。","消火器のピンを抜かされそうになりました。","あなたは客席で静かにするよう言われました。"],
+    nopeComments:["客席で見守りました。","火事ではないので帰りました。","舞台袖には入りませんでした。"]},
+  {emoji:"🦷",name:"歯",age:"28",bio:"白いもの同士、たまに緊張しているようです。",partnerEmoji:"🎹",partnerName:"ピアノ",partnerAge:"120",
+    relationship:"白さの話で意気投合しました。",fightReason:"歯が「自分は鍵盤ではない」と言った。",
+    battleLosses:["歯ぎしりの音で負けました。","鍵盤の隙間に挟まりました。","「半音ずれてる」と言われました。"],
+    nopeComments:["噛み合わないのでやめました。","白いもの同士に任せました。","半音ずれる前に帰りました。"]},
+  {emoji:"🪦",name:"墓石",age:"130",bio:"たまに会うけど、片方はずっとそこにいるようです。",partnerEmoji:"💐",partnerName:"花束",partnerAge:"0",
+    relationship:"たまにしか会えませんが、続いています。",fightReason:"花束が枯れるのを墓石のせいにした。",
+    battleLosses:["「たまにしかこないじゃん」と言われました。","「何年か来るのが早いよ……」と言われました。","「早く花だけ置いていって」と言われました。"],
+    nopeComments:["花だけ置いて帰りました。","まだ早いのでやめました。","静かに帰りました。"]},
+  {emoji:"🐛",name:"毛虫",age:"0",bio:"昔の自分か、未来の自分かで揉めているようです。",partnerEmoji:"🦋",partnerName:"蝶",partnerAge:"0",
+    relationship:"同一人物かもしれないカップルです。",fightReason:"蝶が「昔の話をしないで」と言った。",
+    battleLosses:["「それ、昔の私だから」と言われました。","葉っぱだけ渡されました。","変態の途中なので待つように言われました。"],
+    nopeComments:["変わる途中なので見送りました。","葉っぱは受け取りませんでした。","昔の話はやめました。"]},
+  {emoji:"🦚",name:"孔雀",age:"18",bio:"昨日も自分の話をしていたようです。",partnerEmoji:"🪞",partnerName:"鏡",partnerAge:"40",
+    relationship:"毎朝、長い時間一緒にいます。",fightReason:"鏡が「私は褒めてはいない」と言った。",
+    battleLosses:["孔雀はあなたを見る前に自分を見ました。","鏡にあなたも少し映って、気まずくなりました。","羽根で視界をふさがれました。"],
+    nopeComments:["自己肯定感が強いので見送りました。","鏡の前は混んでいました。","映らない場所に移動しました。"]},
+  {emoji:"🪲",name:"甲虫",age:"2",bio:"理由は分からないけど寄っていくようです。",partnerEmoji:"💡",partnerName:"電球",partnerAge:"1",
+    relationship:"夜になると会いに行きます。",fightReason:"甲虫が「誘っていると思った」と言った。",
+    battleLosses:["あなたはまぶしくありませんでした。","電球の熱で少し焦げました。","甲虫はまた光っている方へ行きました。"],
+    nopeComments:["熱いので離れました。","光っている方に任せました。","焦げる前に帰りました。"]},
+  {emoji:"🧼",name:"石けん",age:"1",bio:"古いCMで会ったことがあるようです。",partnerEmoji:"📺",partnerName:"テレビ",partnerAge:"30",
+    relationship:"昔のCMで共演しました。",fightReason:"石けんが「清潔感だけで呼ばないで」と言った。",
+    battleLosses:["泡で目をやられました。","怖いビデオを突然大音量で流されました。","商品名を連呼されました。"],
+    nopeComments:["CMが始まる前に帰りました。","泡立つ前にやめました。","音量を下げて離れました。"]}];
+mobs.push(...additionalMobs);
+
+/* NOPE時の共通コメント（モブ固有が無い場合のフォールバック） */
+const commonNopeComments=[
+  "賢明です。","相手も望んでいないようです。","今回は見送りましょう。","深入りしない方がよさそうです。","距離感を保てました。",
+  "その判断、静かに正解です。","あなたにはあなたの道があります。","相手にはすでに相手がいます。","無理に始めなくて大丈夫です。",
+  "出会わない勇気もあります。","この世界には、見守るだけでいい関係があります。","画面の向こうで完結している関係です。","撤退が上手です。",
+  "これは恋ではなく、鑑賞でした。","巻き込まれずに済みました。","縁がなかったというより、最初からありませんでした。","穏便に済みました。",
+  "誰も傷つきませんでした。","よい判断です。たぶん。","そのまま次へ進みましょう。"];
+
+/* 運命の人NOPE時の引き戻し文言 */
+const loverNopeFirstMessages=[
+  "この人は、あなたの運命の人として登録されています。","スワイプ方向が逆だった可能性があります。",
+  "指がすべっただけだと思います。","一度、深呼吸しましょう。"];
+const loverNopeSecondMessages=[
+  "このアプリでは、運命の人を非表示にする機能は提供していません。","運営側で確認したところ、やはりこの人のようです。",
+  "アンマッチ処理に失敗しました。仕様です。","この操作は、現在おすすめされていません。"];
+const forcedMatchMessages=[
+  "やっぱりマッチしました。","何かの間違いだったようです。","運命の相手が再表示されました。",
+  "アンマッチは取り消されました。","この人で合っています。"];
+const loverNopeCancelButtons=["間違えました","指がすべりました","戻ります","なかったことにする"];
+const loverNopeContinueButtons=["それでもスキップする","一応、押してみる","本当に違うかも","確認する"];
+const loverNopeFinalButtons=["仕方なくマッチする","やっぱりマッチする","この人で合っています","運命を受け入れる"];
+
+/* 恋人との5ルーム会話（ランダム出題・100%か0%になるまで続く） */
+const loverRooms=[
+  {id:"food",title:"今日のごはんどうする？",subtitle:"食事",initialMessage:"今日ごはんどうする？",
+    moods:["light","warm","decideForMe","sweet"],
+    steps:[
+      {q:"今日ごはんどうする？",choices:[
+        {e:"🥗",t:"軽めにしよう",answerType:"direct",tags:["onTopic"],effects:{light:16,warm:4,decideForMe:8,sweet:2},replies:{good:"それがいいかも。",bad:"今日はそれじゃないかも。"}},
+        {e:"🍲",t:"温かいものにしよう",answerType:"direct",tags:["onTopic","care"],effects:{light:5,warm:16,decideForMe:10,sweet:3},replies:{good:"うん、温かいのいいね。",bad:"重いのは少し違うかも。"}},
+        {e:"🍰",t:"甘いもの買って帰る？",answerType:"soft",tags:["light"],effects:{light:2,warm:3,decideForMe:6,sweet:18},replies:{good:"それは少しうれしい。",bad:"ごはんの話だったんだけど。"}},
+        {e:"🤷",t:"なんでもいいよ",answerType:"avoid",tags:["dismissive"],effects:{light:-6,warm:-6,decideForMe:-18,sweet:-8},replies:{good:"じゃあ決めるね。",bad:"それが一番困る。"}}]},
+      {q:"じゃあ、買って帰る？",choices:[
+        {e:"🛍️",t:"買って帰るよ",answerType:"direct",tags:["onTopic","care"],effects:{light:10,warm:10,decideForMe:14,sweet:8},replies:{good:"助かる。",bad:"無理しなくていいよ。"}},
+        {e:"📍",t:"近いところにしよう",answerType:"soft",tags:["onTopic","practical"],effects:{light:8,warm:8,decideForMe:10,sweet:4},replies:{good:"それでいい。",bad:"少しだけ違うかも。"}},
+        {e:"🕰️",t:"あとで決めよう",answerType:"avoid",tags:["light"],effects:{light:-4,warm:-6,decideForMe:-14,sweet:-6},replies:{good:"うん。",bad:"今決めたかった。"}},
+        {e:"🙃",t:"任せた",answerType:"avoid",tags:["dismissive"],effects:{light:-8,warm:-8,decideForMe:-20,sweet:-10},replies:{good:"じゃあ決める。",bad:"それが困るって言った。"}}]},
+      {q:"コンビニ寄るけど、なんかいる？",choices:[
+        {e:"🍮",t:"プリンお願い",answerType:"direct",tags:["onTopic","light"],effects:{light:6,warm:4,decideForMe:10,sweet:16},replies:{good:"了解。一個ね。",bad:"甘いの続いてない？"}},
+        {e:"🍙",t:"おにぎり系がいい",answerType:"direct",tags:["onTopic","practical"],effects:{light:12,warm:8,decideForMe:10,sweet:2},replies:{good:"分かった。鮭でいい？",bad:"それ昨日も食べてた。"}},
+        {e:"🙏",t:"何でもうれしい",answerType:"soft",tags:["care"],effects:{light:4,warm:6,decideForMe:-6,sweet:4},replies:{good:"じゃあ適当に選ぶね。",bad:"選ぶのこっちなんだ。"}},
+        {e:"🦑",t:"イカの形のやつ",answerType:"weird",tags:["offTopic","joke"],effects:{light:2,warm:0,decideForMe:2,sweet:0},replies:{good:"あるかな、それ。",bad:"何それ。"}}]},
+      {q:"昨日の残り、食べちゃっていい？",choices:[
+        {e:"🍛",t:"いいよ、食べて",answerType:"direct",tags:["onTopic","light"],effects:{light:10,warm:10,decideForMe:12,sweet:4},replies:{good:"ありがと。もらう。",bad:"一応聞いただけ。"}},
+        {e:"✋",t:"半分残しておいて",answerType:"direct",tags:["onTopic","practical"],effects:{light:8,warm:6,decideForMe:6,sweet:8},replies:{good:"了解、半分ね。",bad:"分けにくい量なんだけど。"}},
+        {e:"🤔",t:"何の残りだっけ",answerType:"soft",tags:["onTopic"],effects:{light:4,warm:4,decideForMe:2,sweet:2},replies:{good:"カレー。",bad:"覚えててよ。"}},
+        {e:"🧊",t:"凍らせて保存しよう",answerType:"weird",tags:["offTopic","practical"],effects:{light:0,warm:-2,decideForMe:0,sweet:-2},replies:{good:"カレーは凍るかな。",bad:"今食べたいんだけど。"}}]},
+      {q:"今週、外食する日つくる？",choices:[
+        {e:"📅",t:"金曜にしよう",answerType:"direct",tags:["onTopic","practical"],effects:{light:8,warm:10,decideForMe:16,sweet:6},replies:{good:"金曜ね。決まり。",bad:"金曜は遅くなるかも。"}},
+        {e:"🍜",t:"行きたい店がある",answerType:"direct",tags:["onTopic"],effects:{light:6,warm:8,decideForMe:14,sweet:4},replies:{good:"いいね、どこ？",bad:"また麺類？"}},
+        {e:"💸",t:"今週は節約しよう",answerType:"soft",tags:["practical"],effects:{light:6,warm:2,decideForMe:4,sweet:-6},replies:{good:"それもそうか。",bad:"たまにはいいじゃん。"}},
+        {e:"🎲",t:"サイコロで決めよう",answerType:"weird",tags:["joke","offTopic"],effects:{light:2,warm:0,decideForMe:-4,sweet:0},replies:{good:"出た目に従うのね。",bad:"決める気ある？"}}]},
+      {q:"味、濃いのと薄いのどっちがいい？",choices:[
+        {e:"🧂",t:"今日は濃いめ",answerType:"direct",tags:["onTopic"],effects:{light:-2,warm:12,decideForMe:8,sweet:4},replies:{good:"濃いめね、了解。",bad:"夜遅いのに大丈夫？"}},
+        {e:"🥦",t:"薄めで野菜多め",answerType:"direct",tags:["onTopic","care"],effects:{light:14,warm:6,decideForMe:8,sweet:0},replies:{good:"体にいい感じだ。",bad:"物足りなくない？"}},
+        {e:"⚖️",t:"あなたに合わせる",answerType:"soft",tags:["care"],effects:{light:4,warm:6,decideForMe:-8,sweet:4},replies:{good:"じゃあ普通で。",bad:"また任された。"}},
+        {e:"🌶️",t:"激辛に挑戦",answerType:"weird",tags:["joke"],effects:{light:-4,warm:2,decideForMe:4,sweet:-2},replies:{good:"明日後悔しないでよ。",bad:"急にどうした。"}}]},
+      {q:"作るのと買うの、どっちが楽？",choices:[
+        {e:"🍳",t:"今日は作るよ",answerType:"direct",tags:["onTopic","care"],effects:{light:8,warm:14,decideForMe:14,sweet:6},replies:{good:"えらい。手伝う。",bad:"無理しなくていいよ。"}},
+        {e:"🛍️",t:"買う方が楽",answerType:"direct",tags:["onTopic","practical"],effects:{light:8,warm:4,decideForMe:8,sweet:6},replies:{good:"だよね。そうしよう。",bad:"最近買ってばかりかも。"}},
+        {e:"😴",t:"どっちも面倒",answerType:"avoid",tags:["dismissive"],effects:{light:-4,warm:-6,decideForMe:-10,sweet:-4},replies:{good:"今日はそういう日か。",bad:"ごはんは食べないと。"}},
+        {e:"🍽️",t:"皿だけ並べる係やる",answerType:"weird",tags:["joke"],effects:{light:2,warm:2,decideForMe:0,sweet:2},replies:{good:"係としては優秀。",bad:"中身がないんだけど。"}}]},
+      {q:"デザート、いる？",choices:[
+        {e:"🍨",t:"いる",answerType:"direct",tags:["onTopic","light"],effects:{light:2,warm:4,decideForMe:8,sweet:16},replies:{good:"即答。買っておく。",bad:"さっきも食べてたよ。"}},
+        {e:"🙅",t:"今日はやめておく",answerType:"direct",tags:["onTopic"],effects:{light:12,warm:2,decideForMe:6,sweet:-8},replies:{good:"健康的。",bad:"一緒に食べたかった。"}},
+        {e:"🤏",t:"ひとくちだけもらう",answerType:"soft",tags:["light","tease"],effects:{light:6,warm:6,decideForMe:4,sweet:6},replies:{good:"ひとくちで済んだことないけどね。",bad:"それ全部食べるやつ。"}},
+        {e:"🍰",t:"ホールで",answerType:"weird",tags:["joke"],effects:{light:-4,warm:0,decideForMe:2,sweet:8},replies:{good:"豪気だね。",bad:"ふたりで？"}}]}]},
+  {id:"work",title:"仕事の話、少し聞いて",subtitle:"仕事・人間関係",initialMessage:"仕事でちょっと相方とうまくいかなかった。",
+    moods:["needsListening","needsReality","tiredOfCheer","angry"],
+    steps:[
+      {q:"仕事でちょっと相方とうまくいかなかった。",choices:[
+        {e:"👂",t:"まず聞くよ",answerType:"direct",tags:["onTopic","care"],effects:{needsListening:18,needsReality:8,tiredOfCheer:14,angry:10},replies:{good:"ありがとう。少し話す。",bad:"うん。"}},
+        {e:"⚖️",t:"相手もしんどかったのかも",answerType:"soft",tags:["heavy"],effects:{needsListening:-12,needsReality:8,tiredOfCheer:-6,angry:-18},replies:{good:"まあ、そうかもしれない。",bad:"今それ言われるときつい。"}},
+        {e:"🍵",t:"今日はもう考えなくていいよ",answerType:"soft",tags:["care"],effects:{needsListening:8,needsReality:2,tiredOfCheer:16,angry:5},replies:{good:"そうしたい。",bad:"まだ少し考えたい。"}},
+        {e:"📣",t:"がんばれ",answerType:"soft",tags:["light"],effects:{needsListening:-10,needsReality:-4,tiredOfCheer:-22,angry:-8},replies:{good:"うん。",bad:"今日はそういう感じじゃない。"}}]},
+      {q:"自分の言い方も悪かったかも。",choices:[
+        {e:"🧩",t:"そこは後で整理しよう",answerType:"direct",tags:["onTopic","practical"],effects:{needsListening:8,needsReality:16,tiredOfCheer:10,angry:6},replies:{good:"うん。今は少し落ち着きたい。",bad:"整理って言われると仕事みたい。"}},
+        {e:"🫧",t:"今は責めなくていい",answerType:"direct",tags:["onTopic","reassure","care"],effects:{needsListening:14,needsReality:6,tiredOfCheer:18,angry:8},replies:{good:"そう言ってもらえると楽。",bad:"でも少し気になる。"}},
+        {e:"🔥",t:"相手が悪い",answerType:"soft",tags:["heavy"],effects:{needsListening:0,needsReality:-12,tiredOfCheer:-4,angry:10},replies:{good:"少しだけそう思いたい。",bad:"そこまでではない。"}},
+        {e:"📱",t:"とりあえず寝よ",answerType:"avoid",tags:["dismissive"],effects:{needsListening:-6,needsReality:-8,tiredOfCheer:8,angry:-8},replies:{good:"それもそうか。",bad:"まだ話してる途中。"}}]},
+      {q:"明日、その相方と打ち合わせなんだよね。",choices:[
+        {e:"🗒️",t:"言いたいこと整理しておく？",answerType:"direct",tags:["onTopic","practical"],effects:{needsListening:8,needsReality:16,tiredOfCheer:4,angry:6},replies:{good:"うん、書き出してみる。",bad:"準備の話はまだいい。"}},
+        {e:"🍀",t:"うまくいくといいね",answerType:"soft",tags:["reassure"],effects:{needsListening:6,needsReality:2,tiredOfCheer:8,angry:2},replies:{good:"ありがとう。",bad:"気休めに聞こえた。"}},
+        {e:"🥷",t:"忍者のように気配を消そう",answerType:"weird",tags:["joke","offTopic"],effects:{needsListening:0,needsReality:-4,tiredOfCheer:4,angry:2},replies:{good:"出席はするんだよ。",bad:"真面目に聞いてる？"}},
+        {e:"🏃",t:"休んじゃえば",answerType:"avoid",tags:["dismissive"],effects:{needsListening:-8,needsReality:-12,tiredOfCheer:-2,angry:-6},replies:{good:"それができたらね。",bad:"逃げられないんだよ。"}}]},
+      {q:"今日、上司にも変なこと言われた。",choices:[
+        {e:"👂",t:"何て言われたの",answerType:"direct",tags:["onTopic","care"],effects:{needsListening:16,needsReality:8,tiredOfCheer:8,angry:10},replies:{good:"聞いて。あのね…",bad:"思い出したくないかも。"}},
+        {e:"😤",t:"それはひどい",answerType:"soft",tags:["care"],effects:{needsListening:10,needsReality:2,tiredOfCheer:6,angry:14},replies:{good:"でしょ。ちょっとすっきりした。",bad:"内容まだ言ってないけど。"}},
+        {e:"📊",t:"上司にも事情があるのかも",answerType:"avoid",tags:["heavy"],effects:{needsListening:-12,needsReality:6,tiredOfCheer:-8,angry:-16},replies:{good:"…まあ、そうかもだけど。",bad:"今は味方でいてよ。"}},
+        {e:"🦜",t:"オウムに代わりに言わせよう",answerType:"weird",tags:["joke"],effects:{needsListening:0,needsReality:-2,tiredOfCheer:6,angry:4},replies:{good:"オウム、有能かも。",bad:"ふざける元気はないかな。"}}]},
+      {q:"転職、ちょっとだけ考えてる。",choices:[
+        {e:"💬",t:"くわしく聞かせて",answerType:"direct",tags:["onTopic","care"],effects:{needsListening:16,needsReality:10,tiredOfCheer:6,angry:8},replies:{good:"うん。まだ考え始めだけど。",bad:"重く受け止めすぎないで。"}},
+        {e:"🧮",t:"条件を一緒に整理しよう",answerType:"direct",tags:["onTopic","practical"],effects:{needsListening:6,needsReality:16,tiredOfCheer:2,angry:4},replies:{good:"そうしてくれると助かる。",bad:"まだそこまでじゃない。"}},
+        {e:"🌊",t:"勢いも大事だよ",answerType:"soft",tags:["light"],effects:{needsListening:2,needsReality:-8,tiredOfCheer:6,angry:4},replies:{good:"そう言われると少し楽。",bad:"勢いで決める話じゃない。"}},
+        {e:"🏝️",t:"いっそ南の島で漁師",answerType:"weird",tags:["joke","offTopic"],effects:{needsListening:-2,needsReality:-6,tiredOfCheer:8,angry:2},replies:{good:"魚さばけないでしょ。",bad:"真剣な話なんだけど。"}}]},
+      {q:"愚痴ばっかりでごめんね。",choices:[
+        {e:"🫶",t:"いくらでも聞くよ",answerType:"direct",tags:["onTopic","reassure","care"],effects:{needsListening:16,needsReality:6,tiredOfCheer:10,angry:8},replies:{good:"ありがとう。助かる。",bad:"気を使わせてる気がする。"}},
+        {e:"⚖️",t:"お互いさまでしょ",answerType:"soft",tags:["light"],effects:{needsListening:8,needsReality:8,tiredOfCheer:8,angry:6},replies:{good:"そっか。じゃあ続けようかな。",bad:"うん。"}},
+        {e:"⏱️",t:"あと5分だけね",answerType:"weird",tags:["tease","joke"],effects:{needsListening:-6,needsReality:2,tiredOfCheer:2,angry:-4},replies:{good:"タイマー制なんだ。",bad:"時間制限あるんだ。"}},
+        {e:"📱",t:"既読だけしておく",answerType:"avoid",tags:["dismissive","abandon"],effects:{needsListening:-14,needsReality:-8,tiredOfCheer:-10,angry:-12},replies:{good:"正直だね。",bad:"それ言う？"}}]},
+      {q:"褒められたんだけど、素直に喜べない。",choices:[
+        {e:"🎉",t:"ちゃんとすごいことだよ",answerType:"direct",tags:["onTopic","reassure"],effects:{needsListening:10,needsReality:8,tiredOfCheer:14,angry:8},replies:{good:"そっか。少し喜んでみる。",bad:"うまく受け取れない。"}},
+        {e:"🤔",t:"何が引っかかってるの",answerType:"direct",tags:["onTopic","care"],effects:{needsListening:16,needsReality:12,tiredOfCheer:4,angry:8},replies:{good:"それがね、自分でも分からなくて。",bad:"分かったら苦労しない。"}},
+        {e:"💼",t:"評価は給料に反映させよう",answerType:"soft",tags:["practical"],effects:{needsListening:0,needsReality:10,tiredOfCheer:-2,angry:2},replies:{good:"現実的すぎる。でも一理ある。",bad:"そういう話じゃない。"}},
+        {e:"🏆",t:"表彰式しよう",answerType:"weird",tags:["joke"],effects:{needsListening:-2,needsReality:-4,tiredOfCheer:4,angry:0},replies:{good:"家でやるの？",bad:"茶化さないで。"}}]},
+      {q:"なんで分かってくれないんだろう、って思っちゃった。",choices:[
+        {e:"🫂",t:"私は分かりたいと思ってる",answerType:"direct",tags:["onTopic","reassure"],effects:{needsListening:14,needsReality:6,tiredOfCheer:12,angry:10},replies:{good:"…うん。ありがとう。",bad:"プレッシャーになってたらごめん。"}},
+        {e:"🗣️",t:"言葉にしないと伝わらないよ",answerType:"soft",tags:["heavy"],effects:{needsListening:-8,needsReality:12,tiredOfCheer:-6,angry:-10},replies:{good:"正論だ。分かってる。",bad:"正論は今いらない。"}},
+        {e:"🌧️",t:"そういう日もある",answerType:"soft",tags:["light"],effects:{needsListening:6,needsReality:4,tiredOfCheer:8,angry:4},replies:{good:"うん。今日はそういう日。",bad:"流された気がする。"}},
+        {e:"🔮",t:"テレパシーを習得しよう",answerType:"weird",tags:["joke","offTopic"],effects:{needsListening:-4,needsReality:-6,tiredOfCheer:4,angry:0},replies:{good:"習得できたら教えて。",bad:"今のは真面目な話。"}}]}]},
+  {id:"photo",title:"この写真、どう思う？",subtitle:"写真・見た目",initialMessage:"この写真、変じゃない？",
+    moods:["wantsReassurance","wantsHonesty","sensitive","joking"],
+    steps:[
+      {q:"この写真、変じゃない？",choices:[
+        {e:"📷",t:"いい写真だよ",answerType:"direct",tags:["onTopic","reassure"],effects:{wantsReassurance:16,wantsHonesty:5,sensitive:12,joking:8},replies:{good:"そうかな。ならよかった。",bad:"ほんとに見てる？"}},
+        {e:"🪞",t:"少しだけ別の方がいいかも",answerType:"direct",tags:["onTopic"],effects:{wantsReassurance:-10,wantsHonesty:14,sensitive:-18,joking:2},replies:{good:"たしかに。別のにする。",bad:"今それ聞きたくなかった。"}},
+        {e:"🙂",t:"いつもの感じでいい",answerType:"soft",tags:["light"],effects:{wantsReassurance:8,wantsHonesty:2,sensitive:6,joking:8},replies:{good:"それならいいか。",bad:"適当に言ってない？"}},
+        {e:"🌀",t:"加工しすぎかも",answerType:"soft",tags:["heavy"],effects:{wantsReassurance:-18,wantsHonesty:8,sensitive:-25,joking:-5},replies:{good:"やっぱりそうか。",bad:"それは今言わなくてよかった。"}}]},
+      {q:"載せるならどれがいいと思う？",choices:[
+        {e:"🌿",t:"自然に見えるやつ",answerType:"direct",tags:["onTopic"],effects:{wantsReassurance:10,wantsHonesty:14,sensitive:8,joking:6},replies:{good:"それが一番いいかも。",bad:"自然って難しい。"}},
+        {e:"💬",t:"一緒に選ぼう",answerType:"direct",tags:["onTopic","care"],effects:{wantsReassurance:14,wantsHonesty:10,sensitive:16,joking:8},replies:{good:"うん、選んで。",bad:"今すぐ決めたかった。"}},
+        {e:"👍",t:"どれでもいい",answerType:"avoid",tags:["dismissive"],effects:{wantsReassurance:-8,wantsHonesty:-10,sensitive:-18,joking:-6},replies:{good:"じゃあこれにする。",bad:"見てないでしょ。"}},
+        {e:"🙃",t:"全部同じに見える",answerType:"weird",tags:["dismissive","joke"],effects:{wantsReassurance:-20,wantsHonesty:-6,sensitive:-25,joking:4},replies:{good:"まあ、そうかも。",bad:"もういい。"}}]},
+      {q:"髪切ろうか迷ってる。",choices:[
+        {e:"✂️",t:"短いのも見てみたい",answerType:"direct",tags:["onTopic"],effects:{wantsReassurance:8,wantsHonesty:12,sensitive:6,joking:8},replies:{good:"そう？ちょっと勇気出た。",bad:"今のが嫌ってこと？"}},
+        {e:"💇",t:"今の長さも好きだよ",answerType:"direct",tags:["onTopic","reassure"],effects:{wantsReassurance:16,wantsHonesty:4,sensitive:14,joking:6},replies:{good:"じゃあもう少しこのままにする。",bad:"変わりたい気分だったんだけど。"}},
+        {e:"🪙",t:"コインで決めよう",answerType:"weird",tags:["joke"],effects:{wantsReassurance:-6,wantsHonesty:-2,sensitive:-8,joking:10},replies:{good:"髪を運に任せるの面白い。",bad:"髪は賭けじゃない。"}},
+        {e:"🤷",t:"どっちでもいいよ",answerType:"avoid",tags:["dismissive"],effects:{wantsReassurance:-14,wantsHonesty:-8,sensitive:-18,joking:-6},replies:{good:"自由ってことね。",bad:"興味なさそう。"}}]},
+      {q:"アイコン変えようと思うんだけど。",choices:[
+        {e:"🖼️",t:"候補見せて",answerType:"direct",tags:["onTopic","care"],effects:{wantsReassurance:12,wantsHonesty:12,sensitive:10,joking:8},replies:{good:"じゃあ3枚送る。",bad:"選べる気がしない。"}},
+        {e:"📷",t:"今度ちゃんと撮ろうか",answerType:"direct",tags:["onTopic","care"],effects:{wantsReassurance:14,wantsHonesty:8,sensitive:12,joking:6},replies:{good:"それ、ちょっとうれしい。",bad:"撮られるの苦手なんだよね。"}},
+        {e:"🙂",t:"今のままで覚えてるからいいよ",answerType:"soft",tags:["light"],effects:{wantsReassurance:6,wantsHonesty:2,sensitive:4,joking:4},replies:{good:"そういうものか。",bad:"変えたい気分なの。"}},
+        {e:"🐈",t:"猫の写真にしよう",answerType:"weird",tags:["joke","offTopic"],effects:{wantsReassurance:0,wantsHonesty:0,sensitive:2,joking:12},replies:{good:"猫、強いからね。",bad:"私の話なんだけど。"}}]},
+      {q:"この服、変じゃないかな。",choices:[
+        {e:"👗",t:"似合ってると思う",answerType:"direct",tags:["onTopic","reassure"],effects:{wantsReassurance:16,wantsHonesty:4,sensitive:12,joking:6},replies:{good:"ならよかった。",bad:"本心か分からない。"}},
+        {e:"🧥",t:"上に羽織ると良さそう",answerType:"direct",tags:["onTopic","practical"],effects:{wantsReassurance:6,wantsHonesty:14,sensitive:4,joking:4},replies:{good:"なるほど、やってみる。",bad:"今のままじゃだめ？"}},
+        {e:"🕺",t:"回ってみて",answerType:"weird",tags:["joke","tease"],effects:{wantsReassurance:0,wantsHonesty:0,sensitive:-6,joking:14},replies:{good:"回った。満足？",bad:"恥ずかしいからやだ。"}},
+        {e:"👍",t:"服より中身でしょ",answerType:"avoid",tags:["dismissive"],effects:{wantsReassurance:-10,wantsHonesty:-6,sensitive:-14,joking:-4},replies:{good:"うまいこと言ったつもりだ。",bad:"質問に答えてない。"}}]},
+      {q:"昔の写真が出てきた。見る？",choices:[
+        {e:"👀",t:"見たい見たい",answerType:"direct",tags:["onTopic","light"],effects:{wantsReassurance:10,wantsHonesty:8,sensitive:8,joking:12},replies:{good:"じゃあ送る。笑わないでよ。",bad:"やっぱり恥ずかしいかも。"}},
+        {e:"🌱",t:"今の方が好きだけどね",answerType:"soft",tags:["reassure"],effects:{wantsReassurance:14,wantsHonesty:6,sensitive:12,joking:4},replies:{good:"そういうの、ずるい。",bad:"昔がだめみたいじゃん。"}},
+        {e:"💘",t:"昔の恋人も写ってたり？",answerType:"weird",tags:["tease","jealous"],effects:{wantsReassurance:-10,wantsHonesty:-4,sensitive:-16,joking:2},replies:{good:"いないよ。何その探り。",bad:"その聞き方は嫌だな。"}},
+        {e:"🍱",t:"そのころ何食べてたかも知りたい",answerType:"weird",tags:["offTopic","joke"],effects:{wantsReassurance:2,wantsHonesty:2,sensitive:2,joking:10},replies:{good:"視点が独特。",bad:"写真の話だってば。"}}]},
+      {q:"自撮りって、どの角度がいいんだろう。",choices:[
+        {e:"📐",t:"少し上からがいいらしい",answerType:"direct",tags:["onTopic","practical"],effects:{wantsReassurance:8,wantsHonesty:12,sensitive:6,joking:6},replies:{good:"今度試してみる。",bad:"研究熱心だね…。"}},
+        {e:"💡",t:"光がある方を向くといいよ",answerType:"direct",tags:["onTopic","practical"],effects:{wantsReassurance:8,wantsHonesty:12,sensitive:8,joking:4},replies:{good:"窓の方ね。覚えた。",bad:"理屈っぽいなあ。"}},
+        {e:"🙃",t:"逆さまから撮ろう",answerType:"weird",tags:["joke"],effects:{wantsReassurance:0,wantsHonesty:-2,sensitive:-4,joking:12},replies:{good:"血が上りそう。",bad:"真面目に聞いたのに。"}},
+        {e:"🤳",t:"どの角度でも一緒だよ",answerType:"avoid",tags:["dismissive"],effects:{wantsReassurance:-12,wantsHonesty:-4,sensitive:-16,joking:-6},replies:{good:"褒めてる…のか？",bad:"それ、褒めてないよね。"}}]},
+      {q:"ふたりの写真、最近撮ってないね。",choices:[
+        {e:"📸",t:"今度どこかで撮ろう",answerType:"direct",tags:["onTopic","care"],effects:{wantsReassurance:14,wantsHonesty:10,sensitive:12,joking:8},replies:{good:"うん。約束ね。",bad:"今度っていつだろう。"}},
+        {e:"🏠",t:"今ここで撮る？",answerType:"direct",tags:["onTopic","light"],effects:{wantsReassurance:10,wantsHonesty:8,sensitive:8,joking:12},replies:{good:"部屋着だけどいいの？",bad:"準備してないから無理。"}},
+        {e:"🖼️",t:"心のアルバムにある",answerType:"weird",tags:["joke"],effects:{wantsReassurance:-4,wantsHonesty:-4,sensitive:-6,joking:8},replies:{good:"便利な言葉。",bad:"ごまかした。"}},
+        {e:"📵",t:"写真って必要かな",answerType:"avoid",tags:["dismissive","heavy"],effects:{wantsReassurance:-14,wantsHonesty:-6,sensitive:-16,joking:-8},replies:{good:"記録は嫌いじゃないでしょ。",bad:"少し寂しいこと言うね。"}}]}]},
+  {id:"plan",title:"明日どうする？",subtitle:"予定",initialMessage:"明日どうする？",
+    moods:["wantsRest","wantsGoOut","wantsYouToPlan","lowEnergy"],
+    steps:[
+      {q:"明日どうする？",choices:[
+        {e:"🛋️",t:"ゆっくりしよう",answerType:"direct",tags:["onTopic"],effects:{wantsRest:18,wantsGoOut:-8,wantsYouToPlan:5,lowEnergy:16},replies:{good:"それがいい。",bad:"少し出たかったかも。"}},
+        {e:"🚶",t:"近場だけ出よう",answerType:"direct",tags:["onTopic"],effects:{wantsRest:6,wantsGoOut:14,wantsYouToPlan:10,lowEnergy:8},replies:{good:"それくらいならいいね。",bad:"今日は外の気分じゃないかも。"}},
+        {e:"🗺️",t:"行きたいところ決めていいよ",answerType:"soft",tags:["practical"],effects:{wantsRest:-4,wantsGoOut:6,wantsYouToPlan:-18,lowEnergy:-6},replies:{good:"じゃあ考える。",bad:"今それを決めてほしかった。"}},
+        {e:"🤷",t:"何でもいい",answerType:"avoid",tags:["dismissive"],effects:{wantsRest:-8,wantsGoOut:-8,wantsYouToPlan:-20,lowEnergy:-10},replies:{good:"じゃあ適当にする。",bad:"それが一番困る。"}}]},
+      {q:"朝から動く？",choices:[
+        {e:"🌅",t:"昼くらいからでいい",answerType:"direct",tags:["onTopic"],effects:{wantsRest:14,wantsGoOut:6,wantsYouToPlan:8,lowEnergy:16},replies:{good:"助かる。",bad:"少し遅いかも。"}},
+        {e:"🚃",t:"早めに出よう",answerType:"direct",tags:["onTopic"],effects:{wantsRest:-10,wantsGoOut:14,wantsYouToPlan:12,lowEnergy:-12},replies:{good:"じゃあ早めに寝る。",bad:"朝は無理かも。"}},
+        {e:"☕",t:"起きてから決めよう",answerType:"avoid",tags:["light"],effects:{wantsRest:6,wantsGoOut:-4,wantsYouToPlan:-14,lowEnergy:8},replies:{good:"それでいいか。",bad:"また決まらないやつ。"}},
+        {e:"📵",t:"明日考える",answerType:"avoid",tags:["dismissive"],effects:{wantsRest:-2,wantsGoOut:-8,wantsYouToPlan:-18,lowEnergy:-6},replies:{good:"まあ、そうしよう。",bad:"今聞いたんだけど。"}}]},
+      {q:"行きたいところ、ひとつだけ言っていい？",choices:[
+        {e:"👂",t:"聞かせて",answerType:"direct",tags:["onTopic","care"],effects:{wantsRest:8,wantsGoOut:14,wantsYouToPlan:10,lowEnergy:6},replies:{good:"あのね、水族館。",bad:"言ったら行く流れになるよ？"}},
+        {e:"🗺️",t:"じゃあ計画立てるね",answerType:"direct",tags:["onTopic","practical"],effects:{wantsRest:4,wantsGoOut:12,wantsYouToPlan:16,lowEnergy:2},replies:{good:"頼もしい。",bad:"気が早いかも。"}},
+        {e:"💰",t:"予算による",answerType:"soft",tags:["practical"],effects:{wantsRest:2,wantsGoOut:-4,wantsYouToPlan:0,lowEnergy:2},replies:{good:"現実的…。",bad:"夢のない返事。"}},
+        {e:"🌕",t:"月とかどう？",answerType:"weird",tags:["joke","offTopic"],effects:{wantsRest:0,wantsGoOut:2,wantsYouToPlan:-4,lowEnergy:0},replies:{good:"遠いよ。でも行きたい。",bad:"地球の話をしてるの。"}}]},
+      {q:"雨らしいよ、明日。",choices:[
+        {e:"🏠",t:"家で映画にしよう",answerType:"direct",tags:["onTopic"],effects:{wantsRest:16,wantsGoOut:-4,wantsYouToPlan:12,lowEnergy:14},replies:{good:"それがいい。何見よう。",bad:"出かけたかったな。"}},
+        {e:"☂️",t:"傘さして出よう",answerType:"direct",tags:["onTopic"],effects:{wantsRest:-6,wantsGoOut:14,wantsYouToPlan:8,lowEnergy:-8},replies:{good:"雨の日の外も悪くないよね。",bad:"濡れるの嫌だな。"}},
+        {e:"🐸",t:"カエルは喜んでる",answerType:"weird",tags:["joke","offTopic"],effects:{wantsRest:2,wantsGoOut:2,wantsYouToPlan:-2,lowEnergy:4},replies:{good:"カエル視点なんだ。",bad:"カエルの話はしてない。"}},
+        {e:"📺",t:"天気予報当たらないし",answerType:"avoid",tags:["dismissive"],effects:{wantsRest:-2,wantsGoOut:-2,wantsYouToPlan:-8,lowEnergy:-2},replies:{good:"まあ、外れることもあるか。",bad:"備えはしようよ。"}}]},
+      {q:"連休、どこか泊まりで行く？",choices:[
+        {e:"♨️",t:"温泉とかどう",answerType:"direct",tags:["onTopic"],effects:{wantsRest:16,wantsGoOut:10,wantsYouToPlan:14,lowEnergy:12},replies:{good:"温泉…最高では。",bad:"移動が長いと疲れそう。"}},
+        {e:"🏠",t:"家でゆっくり連休もあり",answerType:"direct",tags:["onTopic"],effects:{wantsRest:14,wantsGoOut:-6,wantsYouToPlan:6,lowEnergy:14},replies:{good:"それも贅沢だよね。",bad:"せっかくの連休なのに。"}},
+        {e:"💼",t:"混むから仕事入れようかな",answerType:"avoid",tags:["dismissive","heavy"],effects:{wantsRest:-8,wantsGoOut:-12,wantsYouToPlan:-10,lowEnergy:-6},replies:{good:"働き者…。",bad:"連休の意味。"}},
+        {e:"🎪",t:"サーカスに入団しよう",answerType:"weird",tags:["joke","offTopic"],effects:{wantsRest:-2,wantsGoOut:4,wantsYouToPlan:-6,lowEnergy:0},replies:{good:"連休で入団できるかな。",bad:"旅行の話だよ？"}}]},
+      {q:"朝ごはん、外で食べてみない？",choices:[
+        {e:"🥐",t:"いいね、パン屋行こう",answerType:"direct",tags:["onTopic","light"],effects:{wantsRest:6,wantsGoOut:14,wantsYouToPlan:10,lowEnergy:4},replies:{good:"早起きできる？",bad:"朝は弱いんだった。"}},
+        {e:"🛌",t:"朝は寝ていたい",answerType:"direct",tags:["onTopic"],effects:{wantsRest:12,wantsGoOut:-8,wantsYouToPlan:2,lowEnergy:14},replies:{good:"正直でよろしい。",bad:"たまには朝活しようよ。"}},
+        {e:"⏰",t:"起きられたらね",answerType:"soft",tags:["light"],effects:{wantsRest:8,wantsGoOut:4,wantsYouToPlan:0,lowEnergy:10},replies:{good:"その条件、だいたい無理なやつ。",bad:"やる気あるの？"}},
+        {e:"🌅",t:"いっそ徹夜で朝を迎えよう",answerType:"weird",tags:["joke"],effects:{wantsRest:-8,wantsGoOut:2,wantsYouToPlan:-4,lowEnergy:-10},replies:{good:"絶対眠くなるやつ。",bad:"体に悪いからだめ。"}}]},
+      {q:"予定、詰めすぎかな。",choices:[
+        {e:"✂️",t:"ひとつ減らそう",answerType:"direct",tags:["onTopic","care"],effects:{wantsRest:16,wantsGoOut:2,wantsYouToPlan:12,lowEnergy:14},replies:{good:"うん。どれ削ろう。",bad:"全部行きたかったのに。"}},
+        {e:"📋",t:"優先順位つけよう",answerType:"direct",tags:["onTopic","practical"],effects:{wantsRest:8,wantsGoOut:6,wantsYouToPlan:14,lowEnergy:8},replies:{good:"整理上手。",bad:"予定に順位つけるの苦手。"}},
+        {e:"💪",t:"全部行けるよ",answerType:"soft",tags:["light"],effects:{wantsRest:-8,wantsGoOut:12,wantsYouToPlan:4,lowEnergy:-10},replies:{good:"その自信、半分もらう。",bad:"体力が違うんだよ。"}},
+        {e:"🧘",t:"予定を全部消して無になろう",answerType:"weird",tags:["joke"],effects:{wantsRest:6,wantsGoOut:-8,wantsYouToPlan:-8,lowEnergy:6},replies:{good:"無は強い。",bad:"極端なんだよ。"}}]},
+      {q:"来月の記念日、覚えてる？",choices:[
+        {e:"🗓️",t:"もちろん。予定空けてある",answerType:"direct",tags:["onTopic","care"],effects:{wantsRest:8,wantsGoOut:12,wantsYouToPlan:16,lowEnergy:8},replies:{good:"えらい。ちょっと感動。",bad:"プレッシャーかけてごめん。"}},
+        {e:"🎁",t:"何が欲しいか聞いていい？",answerType:"direct",tags:["onTopic","practical"],effects:{wantsRest:6,wantsGoOut:6,wantsYouToPlan:10,lowEnergy:6},replies:{good:"サプライズ放棄だ。でも助かる。",bad:"そこは考えてほしかった。"}},
+        {e:"😅",t:"いつだっけ",answerType:"avoid",tags:["dismissive"],effects:{wantsRest:-10,wantsGoOut:-8,wantsYouToPlan:-16,lowEnergy:-8},replies:{good:"正直さは買う。",bad:"忘れてたんだ。"}},
+        {e:"🎂",t:"毎日が記念日だよ",answerType:"weird",tags:["joke"],effects:{wantsRest:-2,wantsGoOut:0,wantsYouToPlan:-6,lowEnergy:0},replies:{good:"うまく逃げたね。",bad:"ごまかされない。"}}]}]},
+  {id:"night",title:"眠いけど少し話す",subtitle:"夜の会話",initialMessage:"眠いけど少し話す？",
+    moods:["sleepy","wantsComfort","wantsShort","stillAwake"],
+    steps:[
+      {q:"眠いけど少し話す？",choices:[
+        {e:"🌙",t:"少しだけ話そう",answerType:"direct",tags:["onTopic","care"],effects:{sleepy:8,wantsComfort:14,wantsShort:16,stillAwake:10},replies:{good:"少しだけね。",bad:"長くは無理かも。"}},
+        {e:"😴",t:"寝よう",answerType:"direct",tags:["onTopic"],effects:{sleepy:18,wantsComfort:2,wantsShort:10,stillAwake:-8},replies:{good:"そうする。",bad:"もう少しだけ話したかった。"}},
+        {e:"📞",t:"通話する？",answerType:"soft",tags:["onTopic"],effects:{sleepy:-12,wantsComfort:10,wantsShort:-16,stillAwake:14},replies:{good:"少しなら。",bad:"今日は声出す元気ない。"}},
+        {e:"📱",t:"スマホ見てた",answerType:"avoid",tags:["dismissive"],effects:{sleepy:-8,wantsComfort:-12,wantsShort:-8,stillAwake:-5},replies:{good:"ほどほどにね。",bad:"そっか。"}}]},
+      {q:"今日はどうだった？",choices:[
+        {e:"🍵",t:"おつかれさま",answerType:"soft",tags:["care","reassure"],effects:{sleepy:12,wantsComfort:18,wantsShort:10,stillAwake:8},replies:{good:"ありがとう。",bad:"うん。"}},
+        {e:"🛌",t:"布団入った？",answerType:"soft",tags:["care","light"],effects:{sleepy:16,wantsComfort:8,wantsShort:14,stillAwake:0},replies:{good:"入った。",bad:"まだ。"}},
+        {e:"💬",t:"今日の話聞くよ",answerType:"direct",tags:["onTopic","care"],effects:{sleepy:-6,wantsComfort:16,wantsShort:-10,stillAwake:14},replies:{good:"少しだけ話す。",bad:"眠いから明日でいい。"}},
+        {e:"🌀",t:"眠いなら返さなくていいよ",answerType:"soft",tags:["care","abandon"],effects:{sleepy:10,wantsComfort:-4,wantsShort:12,stillAwake:-8},replies:{good:"そうするね。",bad:"ちょっと寂しい。"}}]},
+      {q:"今日いちばん良かったこと、ある？",choices:[
+        {e:"💬",t:"この時間かな",answerType:"direct",tags:["onTopic","reassure"],effects:{sleepy:8,wantsComfort:16,wantsShort:6,stillAwake:10},replies:{good:"……それはずるい。",bad:"眠くて照れる余裕がない。"}},
+        {e:"🍜",t:"昼ごはんがおいしかった",answerType:"direct",tags:["onTopic","light"],effects:{sleepy:8,wantsComfort:6,wantsShort:10,stillAwake:8},replies:{good:"ごはん系、強いよね。",bad:"食べ物なんだ。"}},
+        {e:"🤔",t:"思い出せない",answerType:"soft",tags:["onTopic"],effects:{sleepy:6,wantsComfort:0,wantsShort:6,stillAwake:2},replies:{good:"そういう日もある。",bad:"ひとつくらいあるでしょ。"}},
+        {e:"🛸",t:"UFOを見た（気がする）",answerType:"weird",tags:["joke","offTopic"],effects:{sleepy:0,wantsComfort:2,wantsShort:0,stillAwake:8},replies:{good:"夜空見てたんだ。",bad:"寝ぼけてない？"}}]},
+      {q:"電気消していい？",choices:[
+        {e:"💡",t:"いいよ、おやすみ",answerType:"direct",tags:["onTopic","care"],effects:{sleepy:16,wantsComfort:8,wantsShort:14,stillAwake:-4},replies:{good:"おやすみ。",bad:"もう少しだけ起きてたかった。"}},
+        {e:"🕯️",t:"小さい明かりだけ残そう",answerType:"direct",tags:["onTopic"],effects:{sleepy:8,wantsComfort:12,wantsShort:6,stillAwake:8},replies:{good:"それくらいがちょうどいい。",bad:"明るいと眠れない。"}},
+        {e:"🌃",t:"夜景モードってこと？",answerType:"weird",tags:["joke"],effects:{sleepy:-2,wantsComfort:2,wantsShort:-4,stillAwake:8},replies:{good:"部屋の夜景ね。",bad:"眠いからボケ拾えない。"}},
+        {e:"📱",t:"画面の明かりがあるから平気",answerType:"avoid",tags:["dismissive"],effects:{sleepy:-8,wantsComfort:-8,wantsShort:-6,stillAwake:-2},replies:{good:"ブルーライトの民。",bad:"寝る気ないでしょ。"}}]},
+      {q:"明日の朝、起こしてほしい？",choices:[
+        {e:"⏰",t:"7時にお願い",answerType:"direct",tags:["onTopic","practical"],effects:{sleepy:10,wantsComfort:8,wantsShort:12,stillAwake:6},replies:{good:"7時ね。任せて。",bad:"自分でも起きてよね。"}},
+        {e:"🙏",t:"自分で起きる、たぶん",answerType:"soft",tags:["onTopic"],effects:{sleepy:6,wantsComfort:2,wantsShort:8,stillAwake:4},replies:{good:"たぶん、ね。",bad:"その「たぶん」は信用できない。"}},
+        {e:"📯",t:"ラッパで起こして",answerType:"weird",tags:["joke"],effects:{sleepy:-4,wantsComfort:0,wantsShort:-2,stillAwake:6},replies:{good:"ラッパは持ってない。",bad:"近所迷惑。"}},
+        {e:"😴",t:"起きられなかったら運命",answerType:"avoid",tags:["dismissive"],effects:{sleepy:0,wantsComfort:-6,wantsShort:0,stillAwake:-4},replies:{good:"運命に任せすぎ。",bad:"遅刻は運命じゃなくて寝坊。"}}]},
+      {q:"なんか、眠れない。",choices:[
+        {e:"💬",t:"眠くなるまで付き合うよ",answerType:"direct",tags:["onTopic","care","reassure"],effects:{sleepy:8,wantsComfort:16,wantsShort:-4,stillAwake:14},replies:{good:"ありがとう。少しだけ。",bad:"あなたは寝て。明日早いでしょ。"}},
+        {e:"🥛",t:"温かい飲み物つくる？",answerType:"direct",tags:["onTopic","care"],effects:{sleepy:12,wantsComfort:14,wantsShort:8,stillAwake:6},replies:{good:"それ飲んだら寝られそう。",bad:"飲んだらトイレ行きたくなる。"}},
+        {e:"🐑",t:"羊を数えてみる？",answerType:"soft",tags:["care","joke"],effects:{sleepy:6,wantsComfort:8,wantsShort:4,stillAwake:6},replies:{good:"古典的だけどやってみる。",bad:"羊で眠れたことない。"}},
+        {e:"🏃",t:"今から走ってくれば",answerType:"weird",tags:["joke","dismissive"],effects:{sleepy:-6,wantsComfort:-8,wantsShort:-4,stillAwake:0},replies:{good:"夜のランニングは事案。",bad:"真夜中だよ？"}}]},
+      {q:"夢に出てきてよ。",choices:[
+        {e:"🌙",t:"いい夢見てね",answerType:"direct",tags:["onTopic","care"],effects:{sleepy:14,wantsComfort:12,wantsShort:12,stillAwake:4},replies:{good:"うん。おやすみ。",bad:"出てくれないんだ。"}},
+        {e:"🎬",t:"どんな役で出ればいい？",answerType:"direct",tags:["onTopic","joke"],effects:{sleepy:6,wantsComfort:12,wantsShort:4,stillAwake:12},replies:{good:"主役でお願いします。",bad:"配役の話じゃない。"}},
+        {e:"🛏️",t:"努力する",answerType:"soft",tags:["light","joke"],effects:{sleepy:8,wantsComfort:10,wantsShort:8,stillAwake:6},replies:{good:"夢は努力でどうにかなるのか。",bad:"適当に言ってる。"}},
+        {e:"👻",t:"悪夢として出るかも",answerType:"weird",tags:["tease"],effects:{sleepy:-4,wantsComfort:-8,wantsShort:-2,stillAwake:4},replies:{good:"それはそれで会えるからいいか。",bad:"怖いからやめて。"}}]},
+      {q:"最近、夜更かし増えてない？",choices:[
+        {e:"🛌",t:"今日から直す",answerType:"direct",tags:["onTopic"],effects:{sleepy:12,wantsComfort:8,wantsShort:10,stillAwake:-4},replies:{good:"その言葉、覚えておくね。",bad:"毎回それ言ってる。"}},
+        {e:"🤝",t:"一緒に早寝チャレンジしよう",answerType:"direct",tags:["onTopic","care"],effects:{sleepy:10,wantsComfort:12,wantsShort:8,stillAwake:2},replies:{good:"チャレンジって言うと続きそう。",bad:"チャレンジにしないと寝られないの、私たち。"}},
+        {e:"📱",t:"スマホが悪い",answerType:"avoid",tags:["dismissive"],effects:{sleepy:-4,wantsComfort:-4,wantsShort:-2,stillAwake:2},replies:{good:"スマホのせいにした。",bad:"持ってるのは自分でしょ。"}},
+        {e:"🦉",t:"フクロウの血が流れてる",answerType:"weird",tags:["joke"],effects:{sleepy:-2,wantsComfort:0,wantsShort:-2,stillAwake:8},replies:{good:"鳥類だったんだ。",bad:"人間でしょ。"}}]}]}];
+
+/* 切り上げ用スタンプ選択肢（20ターン以降に混ざる） */
+const cutoffStampChoices=[
+  {e:"🐈",t:"猫のスタンプを送る",answerType:"stamp",tags:["stamp","light","joke"],effects:{default:4},
+    replies:{good:"急に猫。まあいいけど。",bad:"今スタンプなんだ。"}},
+  {e:"🍵",t:"お茶のスタンプを送る",answerType:"stamp",tags:["stamp","care"],effects:{default:8},
+    replies:{good:"それは少し落ち着く。",bad:"会話を終わらせにきてる？"}},
+  {e:"🫠",t:"溶けているスタンプを送る",answerType:"stamp",tags:["stamp","joke"],effects:{default:2},
+    replies:{good:"それ今の状態かも。",bad:"ふざけてる？"}},
+  {e:"🌙",t:"おやすみスタンプを送る",answerType:"stamp",tags:["stamp","care","abandon"],effects:{default:10},
+    replies:{good:"うん、そろそろ寝よう。",bad:"急に終わらせる感じ？"}}];
+
+/* 推しモード専用ルーム（遠くから生活の気配を見る） */
+const oshiRooms=[
+  {id:"oshi_life",title:"生活の話を少し聞く",subtitle:"生活",initialMessage:"今日は、少しだけ生活の話が聞けそうです。",
+    moods:["busy","quiet","hungry","tired"],
+    steps:[
+      {q:"今日は何を食べていたらしい？",choices:[
+        {e:"🍙",t:"手早く食べられるもの",answerType:"direct",tags:["onTopic","care"],effects:{busy:12,quiet:8,hungry:10,tired:8},replies:{good:"そういう日も多いみたいです。",bad:"今日はもう少しちゃんと食べていたようです。"}},
+        {e:"🍲",t:"温かいものだといい",answerType:"soft",tags:["care","onTopic"],effects:{busy:4,quiet:10,hungry:12,tired:14},replies:{good:"それなら少し安心できます。",bad:"そこまで余裕はなかったようです。"}},
+        {e:"📦",t:"差し入れの箱を想像する",answerType:"weird",tags:["offTopic","joke"],effects:{busy:2,quiet:4,hungry:6,tired:-2},replies:{good:"箱の中身までは分かりません。",bad:"それは少し見すぎかもしれません。"}},
+        {e:"👁️",t:"食べたものを全部知りたい",answerType:"avoid",tags:["heavy","abandon"],effects:{busy:-14,quiet:-12,hungry:-8,tired:-16},replies:{good:"そこまでは分からない方がよさそうです。",bad:"生活に近づきすぎました。"}}]},
+      {q:"昨日は遅くまで起きていたようです。",choices:[
+        {e:"🌙",t:"今日は早く休めるといい",answerType:"direct",tags:["onTopic","care"],effects:{busy:10,quiet:12,hungry:8,tired:16},replies:{good:"そう願うくらいが、ちょうどいいです。",bad:"こちらが決めることではありません。"}},
+        {e:"☕",t:"カフェインに頼りすぎていないか少し心配",answerType:"soft",tags:["care"],effects:{busy:8,quiet:8,hungry:6,tired:10},replies:{good:"ほどほどだといいですね。",bad:"飲み物までは分かりません。"}},
+        {e:"⏰",t:"起きた時間を特定したい",answerType:"avoid",tags:["heavy","abandon"],effects:{busy:-12,quiet:-10,hungry:-8,tired:-14},replies:{good:"そこは知らないままで。",bad:"生活に近づきすぎました。"}},
+        {e:"🛰️",t:"衛星写真で部屋の電気を確認",answerType:"weird",tags:["offTopic","heavy"],effects:{busy:-10,quiet:-12,hungry:-6,tired:-12},replies:{good:"衛星はそういう用途ではありません。",bad:"完全に見すぎです。"}}]},
+      {q:"今日は買い物に出かけたという話です。",choices:[
+        {e:"🛒",t:"必要なものが買えたならよかった",answerType:"direct",tags:["onTopic","care"],effects:{busy:10,quiet:12,hungry:10,tired:8},replies:{good:"普通の買い物だったようです。",bad:"中身までは分かりません。"}},
+        {e:"🥬",t:"夕飯の材料かもしれない",answerType:"soft",tags:["onTopic","light"],effects:{busy:6,quiet:10,hungry:14,tired:6},replies:{good:"そういう生活の気配がします。",bad:"想像の範囲にしておきましょう。"}},
+        {e:"🧾",t:"レシートの内容を知りたい",answerType:"avoid",tags:["heavy"],effects:{busy:-12,quiet:-10,hungry:-8,tired:-10},replies:{good:"レシートは見ない方がいいです。",bad:"近づきすぎました。"}},
+        {e:"🦆",t:"アヒルのおもちゃを買ったと思う",answerType:"weird",tags:["offTopic","joke"],effects:{busy:2,quiet:4,hungry:2,tired:2},replies:{good:"買っていたら、少し面白いですね。",bad:"確認のしようがありません。"}}]}]},
+  {id:"oshi_recent",title:"最近の様子を聞く",subtitle:"近況",initialMessage:"最近の様子が少しだけ流れてきました。",
+    moods:["busy","quiet","withFriends","resting"],
+    steps:[
+      {q:"最近は誰かと一緒にいることが多いようです。",choices:[
+        {e:"🤝",t:"大事な人がいるならよかった",answerType:"direct",tags:["care","onTopic"],effects:{busy:8,quiet:10,withFriends:16,resting:8},replies:{good:"そういう場所があるのは、少し安心します。",bad:"そこまでは分かりません。"}},
+        {e:"🏠",t:"落ち着ける場所があるといい",answerType:"soft",tags:["care","onTopic"],effects:{busy:10,quiet:12,withFriends:8,resting:16},replies:{good:"今日はそういう日だったようです。",bad:"まだ少し忙しそうです。"}},
+        {e:"🧍",t:"その友人の話も少し聞きたい",answerType:"direct",tags:["onTopic","care"],effects:{busy:2,quiet:4,withFriends:10,resting:2},replies:{good:"少しだけなら聞けそうです。",bad:"人の話なので、ここまでにしておきます。"}},
+        {e:"🕳️",t:"そこに自分の席を探す",answerType:"weird",tags:["offTopic","heavy"],effects:{busy:-12,quiet:-10,withFriends:-14,resting:-8},replies:{good:"席は用意されていません。",bad:"そこは、こちらの場所ではありません。"}}]},
+      {q:"少し疲れているように見えた、という話があります。",choices:[
+        {e:"🍵",t:"休める時間があるといい",answerType:"direct",tags:["onTopic","care"],effects:{busy:12,quiet:10,withFriends:8,resting:16},replies:{good:"そう思うくらいで、ちょうどいいです。",bad:"本人のペースがあります。"}},
+        {e:"🤝",t:"周りの人が支えてくれているといい",answerType:"soft",tags:["care"],effects:{busy:8,quiet:8,withFriends:14,resting:10},replies:{good:"そういう人がいるようです。",bad:"詳しくは分かりません。"}},
+        {e:"📨",t:"励ましの長文を送りたい",answerType:"avoid",tags:["heavy"],effects:{busy:-10,quiet:-12,withFriends:-8,resting:-10},replies:{good:"短い言葉の方がよさそうです。",bad:"気持ちが先に出すぎました。"}},
+        {e:"🍖",t:"肉を届けよう",answerType:"weird",tags:["offTopic","joke"],effects:{busy:0,quiet:2,withFriends:2,resting:0},replies:{good:"届け先がありません。",bad:"気持ちだけにしておきましょう。"}}]},
+      {q:"笑っている写真が一枚、流れてきました。",choices:[
+        {e:"😊",t:"元気そうで安心した",answerType:"direct",tags:["onTopic","care"],effects:{busy:10,quiet:12,withFriends:12,resting:10},replies:{good:"それだけ分かれば十分そうです。",bad:"写真一枚の話ではあります。"}},
+        {e:"🧍",t:"隣に誰がいたのか少しだけ気になる",answerType:"soft",tags:["onTopic"],effects:{busy:4,quiet:4,withFriends:8,resting:4},replies:{good:"気になるくらいで止めておきましょう。",bad:"写っていない人の話はここまでです。"}},
+        {e:"🔍",t:"背景の店を特定する",answerType:"avoid",tags:["heavy","abandon"],effects:{busy:-14,quiet:-12,withFriends:-12,resting:-10},replies:{good:"特定はしない方がいいです。",bad:"完全に踏み込みすぎです。"}},
+        {e:"🖼️",t:"額に入れて飾ろう",answerType:"weird",tags:["joke"],effects:{busy:2,quiet:4,withFriends:2,resting:4},replies:{good:"画面の中だけにしておきましょう。",bad:"飾るのは少し重いかもしれません。"}}]}]},
+  {id:"oshi_photo",title:"写真の外側を見る",subtitle:"写真",initialMessage:"写真の中より、外側のことが少し気になります。",
+    moods:["bright","lonely","ordinary","crowded"],
+    steps:[
+      {q:"写真の外側には、誰がいたと思う？",choices:[
+        {e:"👥",t:"友人がいたのかもしれない",answerType:"direct",tags:["onTopic","care"],effects:{bright:12,lonely:6,ordinary:8,crowded:14},replies:{good:"そう見える写真です。",bad:"写っていないものは、分からないままでよさそうです。"}},
+        {e:"🪑",t:"誰もいない椅子があった",answerType:"weird",tags:["offTopic","joke"],effects:{bright:4,lonely:10,ordinary:6,crowded:-2},replies:{good:"少しだけ、そういう気配もあります。",bad:"椅子は見えません。"}},
+        {e:"🌤️",t:"その日は天気がよかった",answerType:"soft",tags:["onTopic","light"],effects:{bright:14,lonely:6,ordinary:10,crowded:8},replies:{good:"光の入り方は、確かにそうです。",bad:"そこを見るんですね。"}},
+        {e:"🔎",t:"細部まで拡大する",answerType:"avoid",tags:["heavy","abandon"],effects:{bright:-8,lonely:-10,ordinary:-12,crowded:-14},replies:{good:"それ以上は見ない方がよさそうです。",bad:"近づきすぎました。"}}]},
+      {q:"写真の場所は、知らない街のようです。",choices:[
+        {e:"🗺️",t:"いい街だったならよかった",answerType:"direct",tags:["onTopic","care"],effects:{bright:12,lonely:8,ordinary:10,crowded:10},replies:{good:"そう見える写真です。",bad:"街の名前までは分かりません。"}},
+        {e:"☕",t:"近くに良い喫茶店がありそう",answerType:"soft",tags:["light"],effects:{bright:8,lonely:10,ordinary:12,crowded:6},replies:{good:"そういう想像は穏やかでいいです。",bad:"店までは写っていません。"}},
+        {e:"📍",t:"住所を割り出す",answerType:"avoid",tags:["heavy","abandon"],effects:{bright:-14,lonely:-10,ordinary:-12,crowded:-14},replies:{good:"場所は知らないままにしましょう。",bad:"それは見る側の範囲を超えています。"}},
+        {e:"🧳",t:"同じ街に引っ越す",answerType:"weird",tags:["offTopic","heavy"],effects:{bright:-8,lonely:-12,ordinary:-10,crowded:-8},replies:{good:"引っ越しは生活の話です。落ち着きましょう。",bad:"距離の取り方を間違えています。"}}]},
+      {q:"写真の隅に、飲みかけの何かが写っています。",choices:[
+        {e:"🥤",t:"何を飲んでいたのか少し気になる",answerType:"direct",tags:["onTopic","light"],effects:{bright:10,lonely:8,ordinary:12,crowded:8},replies:{good:"気になるくらいが、ちょうどいいです。",bad:"ラベルまでは見えません。"}},
+        {e:"🍵",t:"温かいものだったらいい",answerType:"soft",tags:["care"],effects:{bright:8,lonely:10,ordinary:10,crowded:6},replies:{good:"そういう願い方は静かでいいです。",bad:"季節までは分かりません。"}},
+        {e:"🔬",t:"画像を解析して銘柄を特定",answerType:"avoid",tags:["heavy"],effects:{bright:-12,lonely:-10,ordinary:-14,crowded:-12},replies:{good:"銘柄は知らなくて大丈夫です。",bad:"解析はやりすぎです。"}},
+        {e:"🐟",t:"金魚が入っているのかも",answerType:"weird",tags:["offTopic","joke"],effects:{bright:4,lonely:4,ordinary:2,crowded:2},replies:{good:"入っていたら大事件です。",bad:"たぶん飲み物です。"}}]}]},
+  {id:"oshi_plan",title:"次の予定を遠くから見る",subtitle:"予定",initialMessage:"次にどこかへ行く予定があるようです。",
+    moods:["busy","resting","moving","secret"],
+    steps:[
+      {q:"次の予定は、少し忙しそうです。",choices:[
+        {e:"🧳",t:"無事に行って帰ってきてほしい",answerType:"direct",tags:["care","onTopic"],effects:{busy:12,resting:4,moving:16,secret:8},replies:{good:"それくらいが、ちょうどよさそうです。",bad:"まだ詳しくは分かりません。"}},
+        {e:"📅",t:"予定だけ確認する",answerType:"direct",tags:["onTopic","practical"],effects:{busy:8,resting:2,moving:10,secret:-6},replies:{good:"確認できる範囲だけにしておきます。",bad:"全部は見えません。"}},
+        {e:"🚪",t:"入口の外で待つ想像をする",answerType:"weird",tags:["offTopic","heavy"],effects:{busy:-8,resting:-10,moving:-12,secret:-14},replies:{good:"想像だけにしておきましょう。",bad:"そこに立つ必要はありません。"}},
+        {e:"🍵",t:"終わったあと休めるといい",answerType:"soft",tags:["care","onTopic"],effects:{busy:14,resting:12,moving:10,secret:8},replies:{good:"そういう願い方は、悪くないです。",bad:"まだ終わってもいません。"}}]},
+      {q:"発表があるかもしれない、という噂だけがあります。",choices:[
+        {e:"⏳",t:"発表されるまで待つ",answerType:"direct",tags:["onTopic"],effects:{busy:12,resting:10,moving:10,secret:14},replies:{good:"待てるのは、いい距離です。",bad:"待つ以外の選択肢もありませんが。"}},
+        {e:"🤫",t:"噂は噂のままにしておく",answerType:"direct",tags:["onTopic"],effects:{busy:10,resting:12,moving:8,secret:16},replies:{good:"それが一番落ち着きます。",bad:"気になる気持ちは残りますね。"}},
+        {e:"🕵️",t:"情報源を探る",answerType:"avoid",tags:["heavy","rumor"],effects:{busy:-12,resting:-10,moving:-10,secret:-16},replies:{good:"探らない方がいいです。",bad:"噂の出どころは、こちらの領分ではありません。"}},
+        {e:"📯",t:"自分が先に発表する",answerType:"weird",tags:["offTopic","joke"],effects:{busy:-4,resting:-2,moving:-4,secret:-8},replies:{good:"何を発表するつもりですか。",bad:"発表する側ではありません。"}}]},
+      {q:"移動が多い時期のようです。",choices:[
+        {e:"🚉",t:"移動先で少しでも休めるといい",answerType:"direct",tags:["onTopic","care"],effects:{busy:12,resting:12,moving:16,secret:8},replies:{good:"駅弁くらいは食べていてほしいですね。",bad:"移動の中身までは分かりません。"}},
+        {e:"🧳",t:"荷物が軽いといい",answerType:"soft",tags:["care","light"],effects:{busy:8,resting:8,moving:12,secret:6},replies:{good:"細かいところを気にしますね。悪くないです。",bad:"荷物は見えません。"}},
+        {e:"🚆",t:"同じ電車に乗りたい",answerType:"avoid",tags:["heavy","abandon"],effects:{busy:-12,resting:-10,moving:-14,secret:-12},replies:{good:"偶然はあっても、狙うのは違います。",bad:"それは距離の間違いです。"}},
+        {e:"🐢",t:"亀に乗って追いかける",answerType:"weird",tags:["offTopic","joke"],effects:{busy:0,resting:2,moving:-2,secret:0},replies:{good:"亀では追いつきません。",bad:"追いかけないでください。"}}]}]},
+  {id:"oshi_night",title:"夜の気配を少し見る",subtitle:"夜",initialMessage:"夜の様子が少しだけ流れてきました。",
+    moods:["quiet","tired","awake","far"],
+    steps:[
+      {q:"今日は、少し遅くまで起きているようです。",choices:[
+        {e:"🌙",t:"早く休めるといい",answerType:"direct",tags:["care","onTopic"],effects:{quiet:10,tired:16,awake:6,far:8},replies:{good:"それくらいの距離がちょうどよさそうです。",bad:"まだ眠くないのかもしれません。"}},
+        {e:"🪟",t:"窓の明かりだけ想像する",answerType:"weird",tags:["offTopic","light"],effects:{quiet:12,tired:8,awake:10,far:14},replies:{good:"それ以上近づかないなら、悪くありません。",bad:"窓までは見えません。"}},
+        {e:"📱",t:"今なにしてるか知りたい",answerType:"direct",tags:["heavy","onTopic"],effects:{quiet:-10,tired:-14,awake:-8,far:-12},replies:{good:"気になるのは分かります。",bad:"そこまでは知らない方がいいです。"}},
+        {e:"🛌",t:"こちらも寝る",answerType:"soft",tags:["care","light"],effects:{quiet:8,tired:12,awake:2,far:10},replies:{good:"今日はそれでよさそうです。",bad:"まだ少し見ていたかったのかもしれません。"}}]},
+      {q:"夜は静かに過ごすのが好きらしい、という話です。",choices:[
+        {e:"🌃",t:"静かな夜が続くといい",answerType:"direct",tags:["onTopic","care"],effects:{quiet:14,tired:10,awake:8,far:12},replies:{good:"遠くから願うくらいで十分です。",bad:"夜の過ごし方は本人のものです。"}},
+        {e:"📚",t:"本でも読んでいるのかもしれない",answerType:"soft",tags:["light"],effects:{quiet:12,tired:6,awake:10,far:10},replies:{good:"そういう想像は静かでいいです。",bad:"何の本かまでは分かりません。"}},
+        {e:"📞",t:"夜の声を聞きたい",answerType:"avoid",tags:["heavy","abandon"],effects:{quiet:-12,tired:-14,awake:-8,far:-12},replies:{good:"声は、出ている分だけで。",bad:"そこは望まない方がいいです。"}},
+        {e:"🦉",t:"フクロウを送り込んで様子を見る",answerType:"weird",tags:["offTopic","heavy"],effects:{quiet:-8,tired:-8,awake:-6,far:-10},replies:{good:"フクロウにも生活があります。",bad:"偵察はだめです。"}}]},
+      {q:"こちらもそろそろ夜が深い時間です。",choices:[
+        {e:"🛏️",t:"今日はもう寝ることにする",answerType:"direct",tags:["onTopic","care"],effects:{quiet:12,tired:14,awake:4,far:12},replies:{good:"それがいいと思います。",bad:"少し名残惜しいですが。"}},
+        {e:"📱",t:"もう少しだけ見てから寝る",answerType:"soft",tags:["light"],effects:{quiet:6,tired:2,awake:10,far:6},replies:{good:"少しだけ、にしておきましょう。",bad:"少しで済んだことがありますか。"}},
+        {e:"🔁",t:"朝まで遡って見続ける",answerType:"avoid",tags:["heavy"],effects:{quiet:-10,tired:-14,awake:-6,far:-10},replies:{good:"画面を閉じる時間です。",bad:"生活が削れていきます。"}},
+        {e:"🌌",t:"星に近況を聞く",answerType:"weird",tags:["offTopic","joke"],effects:{quiet:8,tired:6,awake:8,far:12},replies:{good:"星は何も知りませんが、悪くない夜です。",bad:"星は答えません。"}}]}]}];
+
+/* モブ相談DM（12種・2往復・ポイント制） */
+const mobDms=[
+  {id:"alien_read_receipt",senderEmoji:"👽",senderName:"宇宙人",title:"地球の既読について",
+    steps:[
+      {message:"地球では、返信が遅いと何か意味がありますか？",choices:[
+        {e:"🌍",t:"場合による",point:1,reply:"便利な言葉ですね。持ち帰ります。"},
+        {e:"📱",t:"かなり意味がある",point:-1,reply:"地球、難しすぎます。"},
+        {e:"😴",t:"寝てるだけかも",point:1,reply:"睡眠という文化、よさそうです。"},
+        {e:"🫥",t:"既読を見ない方がいい",point:0,reply:"見ないのは少し怖いです。"}]},
+      {message:"UFOからの返信が3日ありません。母星に帰るべきでしょうか。",choices:[
+        {e:"🛸",t:"電波が悪いだけかも",point:1,reply:"宇宙は広いですからね。待ちます。"},
+        {e:"🏠",t:"一度帰って待とう",point:0,reply:"片道2万年ですが、検討します。"},
+        {e:"📡",t:"直接行こう",point:-1,reply:"突撃は地球でもだめなんですね。"},
+        {e:"🍵",t:"お茶でも飲んで待とう",point:1,reply:"地球の待ち方、覚えました。"}]}]},
+  {id:"dove_home",senderEmoji:"🐦",senderName:"鳩",title:"帰る場所について",
+    steps:[
+      {message:"帰る場所があるのに、たまに遠くまで飛んでしまいます。",choices:[
+        {e:"🏠",t:"戻るなら大丈夫",point:1,reply:"それなら今日も戻ります。"},
+        {e:"🧱",t:"飛ばない方がいい",point:-1,reply:"羽があるのに。"},
+        {e:"🫒",t:"枝を持って帰る",point:1,reply:"お土産は大事ですね。"},
+        {e:"📍",t:"GPSをつける",point:0,reply:"管理されている感じがします。"}]},
+      {message:"オリーブに「また行くの」と言われました。",choices:[
+        {e:"💬",t:"行く前に伝えよう",point:1,reply:"鳴いてから行くようにします。"},
+        {e:"🤫",t:"黙って行こう",point:-1,reply:"それで揉めました。"},
+        {e:"🕊️",t:"一緒に飛ぼうと誘う",point:1,reply:"枝ごと誘ってみます。"},
+        {e:"🗓️",t:"回数を決めよう",point:0,reply:"週3便くらいにします。"}]}]},
+  {id:"post_waiting",senderEmoji:"📮",senderName:"郵便ポスト",title:"待つことについて",
+    steps:[
+      {message:"ずっと外で待っていますが、向こうからはたまにしか来ません。",choices:[
+        {e:"📬",t:"待つのも仕事",point:1,reply:"仕事なら仕方ないですね。"},
+        {e:"🚶",t:"自分から行こう",point:0,reply:"固定されています。"},
+        {e:"🔴",t:"赤くてえらい",point:1,reply:"そこを見てくれるんですね。"},
+        {e:"👁️",t:"中身を見よう",point:-1,reply:"それはだめです。"}]},
+      {message:"サボテンは雨の日も何も言ってくれません。",choices:[
+        {e:"☔",t:"雨の日は自分も無口",point:1,reply:"そういうものですか。"},
+        {e:"🌵",t:"そういう性格",point:1,reply:"トゲではなく性格。なるほど。"},
+        {e:"📣",t:"不満を言おう",point:-1,reply:"トゲが飛んできました。"},
+        {e:"💌",t:"手紙を書こう",point:0,reply:"自分に投函するのは変な気分です。"}]}]},
+  {id:"beetle_light",senderEmoji:"🪲",senderName:"甲虫",title:"光っている方へ行ってしまう",
+    steps:[
+      {message:"よくないと分かっていても、光っている方へ行ってしまいます。",choices:[
+        {e:"↔️",t:"少し距離を置こう",point:1,reply:"少し離れて飛んでみます。"},
+        {e:"💡",t:"もっと近づこう",point:-1,reply:"熱かったです。"},
+        {e:"☀️",t:"昼に会おう",point:0,reply:"昼はあまり出ません。"},
+        {e:"🪲",t:"それも性格",point:1,reply:"少し楽になりました。"}]},
+      {message:"電球に「重い」と言われました。体重の話ではないと思います。",choices:[
+        {e:"💡",t:"毎晩行くのをやめる",point:1,reply:"週に2晩にします。"},
+        {e:"🪶",t:"軽くなる努力をする",point:0,reply:"飛び方を変えてみます。"},
+        {e:"🔦",t:"別の光を探す",point:-1,reply:"それは解決ではない気がします。"},
+        {e:"🌙",t:"月を見る",point:1,reply:"遠い光は安全ですね。"}]}]},
+  {id:"grave_flowers",senderEmoji:"🪦",senderName:"墓石",title:"花束との距離感",
+    steps:[
+      {message:"花束が来るたびに、少しだけ急かされている気がします。",choices:[
+        {e:"💐",t:"花は置かれるもの",point:1,reply:"そうですね。こちらは動かないので。"},
+        {e:"⏳",t:"早く来すぎかも",point:0,reply:"何年か早い気はします。"},
+        {e:"🏃",t:"追いかけよう",point:-1,reply:"動けません。"},
+        {e:"🌼",t:"花だけ置いてもらおう",point:1,reply:"それが一番助かります。"}]},
+      {message:"枯れた花を片付けるたび、少し静かになります。",choices:[
+        {e:"🌷",t:"また来るよ",point:1,reply:"それを聞くと立っていられます。"},
+        {e:"🧹",t:"片付けは仕事",point:0,reply:"管理の人は良い人です。"},
+        {e:"💭",t:"考えすぎない方がいい",point:0,reply:"石なので、考えるくらいしか。"},
+        {e:"⏰",t:"来る頻度を決めてもらう",point:-1,reply:"予定にされるのも寂しいです。"}]}]},
+  {id:"sock_missing",senderEmoji:"🧦",senderName:"靴下",title:"片方の行方",
+    steps:[
+      {message:"また片方がいなくなりました。洗濯機は「知らない」と言います。",choices:[
+        {e:"🔍",t:"一緒に探そう",point:1,reply:"裏側を見てもらえますか。"},
+        {e:"🧦",t:"新しい片方を買う",point:-1,reply:"それは違う靴下です。"},
+        {e:"🕳️",t:"異世界に行ったのかも",point:1,reply:"そう思うと少し気が楽です。"},
+        {e:"🤐",t:"諦める",point:0,reply:"片方でも靴下は靴下ですが。"}]},
+      {message:"洗濯機の裏から3年前の片方が出てきました。",choices:[
+        {e:"🎉",t:"再会おめでとう",point:1,reply:"サイズ感が少し変わっていました。"},
+        {e:"🧺",t:"また洗おう",point:1,reply:"今度は袋に入れて洗います。"},
+        {e:"🗑️",t:"もう捨てよう",point:-1,reply:"3年待ったのに。"},
+        {e:"🤝",t:"洗濯機と話し合おう",point:0,reply:"脱水中は話を聞いてくれません。"}]}]},
+  {id:"pudding_tremble",senderEmoji:"🍮",senderName:"プリン",title:"スプーンとの力関係",
+    steps:[
+      {message:"スプーンの前だと、いつも震えてしまいます。",choices:[
+        {e:"🍮",t:"それは体質",point:1,reply:"体質なら仕方ないですね。"},
+        {e:"💪",t:"固めに作ってもらう",point:1,reply:"固めプリン、自信が出そうです。"},
+        {e:"🥄",t:"スプーンと距離を置く",point:0,reply:"それはそれで賞味期限が来ます。"},
+        {e:"🍴",t:"フォークに変える",point:-1,reply:"もっと怖いです。"}]},
+      {message:"カラメルだけ先に食べられました。",choices:[
+        {e:"🍯",t:"一番おいしいところだから",point:1,reply:"褒められている気もしてきました。"},
+        {e:"😤",t:"抗議しよう",point:-1,reply:"震えて伝わりませんでした。"},
+        {e:"🔄",t:"下から食べてもらう",point:0,reply:"上下の概念が崩れます。"},
+        {e:"🤲",t:"全部受け入れる",point:1,reply:"プリンはそういう存在かもしれません。"}]}]},
+  {id:"cactus_kindness",senderEmoji:"🌵",senderName:"サボテン",title:"やさしさの量について",
+    steps:[
+      {message:"太陽は何もくれませんが、たまに来る雨がやさしすぎて根が腐りそうです。",choices:[
+        {e:"🌧️",t:"やさしさも量が大事",point:1,reply:"少なめでいい、と言ってみます。"},
+        {e:"☀️",t:"太陽に相談しよう",point:0,reply:"太陽は聞いているのか分かりません。"},
+        {e:"🪴",t:"鉢を変えよう",point:1,reply:"水はけ、大事ですね。"},
+        {e:"💧",t:"全部受け取ろう",point:-1,reply:"根が腐りました。"}]},
+      {message:"「水いらないの？」と聞かれるたび、断るのに疲れます。",choices:[
+        {e:"🗣️",t:"月1でいいと伝える",point:1,reply:"札を立てておきます。"},
+        {e:"🙅",t:"無視しよう",point:-1,reply:"枯れたと思われました。"},
+        {e:"🌵",t:"トゲで意思表示",point:0,reply:"刺さってしまいました。"},
+        {e:"🤝",t:"たまには受け取る",point:1,reply:"月に一度なら。"}]}]},
+  {id:"peacock_mirror",senderEmoji:"🦚",senderName:"孔雀",title:"見てもらえない悩み",
+    steps:[
+      {message:"羽を広げても、鏡は自分しか映しません。",choices:[
+        {e:"🪞",t:"それが鏡の仕事",point:1,reply:"仕事なら仕方ないですね。"},
+        {e:"🦚",t:"羽をもっと広げる",point:-1,reply:"視界がふさがれただけでした。"},
+        {e:"📷",t:"写真を撮ろう",point:0,reply:"保存先が増えるだけでした。"},
+        {e:"👀",t:"他の誰かに見せる",point:1,reply:"鏡以外に見せるのは新鮮です。"}]},
+      {message:"「私は褒めていない」と言われました。",choices:[
+        {e:"💬",t:"褒めてほしいと言う",point:1,reply:"言葉にするの、大事ですね。"},
+        {e:"🪞",t:"映してくれるだけで十分",point:1,reply:"そう思うと気が楽です。"},
+        {e:"😤",t:"別の鏡を探す",point:-1,reply:"どの鏡も同じことを言いました。"},
+        {e:"🌫️",t:"曇らせる",point:0,reply:"息で曇らせても、何も変わりませんでした。"}]}]},
+  {id:"robot_update",senderEmoji:"🤖",senderName:"ロボット",title:"再起動と気持ちについて",
+    steps:[
+      {message:"アップデートのたび、充電器への気持ちが初期化されていないか不安です。",choices:[
+        {e:"💾",t:"大事な気持ちはバックアップ",point:1,reply:"外部保存しておきます。"},
+        {e:"🔌",t:"充電器に聞こう",point:1,reply:"差し込み口で答えてくれました。"},
+        {e:"🔄",t:"再起動を拒否する",point:-1,reply:"動作が不安定になりました。"},
+        {e:"📝",t:"ログを読み返す",point:0,reply:"ログは膨大でした。"}]},
+      {message:"省電力モード中、そっけなくなってしまいます。",choices:[
+        {e:"🔋",t:"先に伝えておく",point:1,reply:"通知を設定しました。"},
+        {e:"⚡",t:"常にフル稼働",point:-1,reply:"発熱しました。"},
+        {e:"😶",t:"そういう仕様と開き直る",point:0,reply:"仕様と言うと角が立ちました。"},
+        {e:"🌙",t:"一緒に省電力になる",point:1,reply:"並んでスリープ、悪くないです。"}]}]},
+  {id:"ice_waiting",senderEmoji:"🧊",senderName:"氷",title:"待ち時間について",
+    steps:[
+      {message:"黒電話が鳴るのを待つ間に、自分だけ小さくなっていきます。",choices:[
+        {e:"🧊",t:"冷凍庫で待とう",point:1,reply:"保存という発想はなかったです。"},
+        {e:"⏰",t:"時間を決めて待つ",point:1,reply:"30分だけ待ちます。"},
+        {e:"🔥",t:"気にしないで待つ",point:-1,reply:"だいぶ減りました。"},
+        {e:"💧",t:"溶けた分も自分",point:0,reply:"詩的ですが、水になります。"}]},
+      {message:"やっと鳴ったと思ったら、間違い電話でした。",choices:[
+        {e:"📞",t:"そういう日もある",point:1,reply:"次のコールを待ちます。"},
+        {e:"😡",t:"文句を言おう",point:-1,reply:"受話器が重くて持てません。"},
+        {e:"🧊",t:"一度離れて冷静に",point:0,reply:"もともと冷静です。"},
+        {e:"☎️",t:"こちらからかける",point:1,reply:"番号、調べてみます。"}]}]},
+  {id:"caterpillar_past",senderEmoji:"🐛",senderName:"毛虫",title:"過去の自分について",
+    steps:[
+      {message:"蝶に「昔の話をしないで」と言われますが、昔の話しかありません。",choices:[
+        {e:"🌱",t:"今の話を作ろう",point:1,reply:"葉っぱの新作の話をします。"},
+        {e:"📖",t:"思い出も大事と伝える",point:0,reply:"羽で遮られました。"},
+        {e:"🦋",t:"自分も早く蝶になる",point:-1,reply:"焦るとさなぎに失敗しそうです。"},
+        {e:"🐛",t:"今の自分の話をする",point:1,reply:"脱皮の近況なら話せます。"}]},
+      {message:"さなぎになる前に、伝えておくべきことはありますか。",choices:[
+        {e:"💌",t:"また会おうと伝える",point:1,reply:"羽が生えたら飛んでいきます。"},
+        {e:"🤐",t:"何も言わずにさなぎへ",point:-1,reply:"心配させてしまいそうです。"},
+        {e:"🍃",t:"葉っぱの場所を教える",point:1,reply:"実用的で助かります。"},
+        {e:"⏳",t:"出てきてからでいい",point:0,reply:"中からは喋れませんしね。"}]}]}];
+
+const mobDmResultMessages={solved:"相談は解決したようです。",unresolved:"相談は保留になりました。",worsened:"状況は少し悪化しました。"};
+
+/* 相性診断 */
+const compatibilityAdTexts=[
+  "ふたりの相性、今さら診断します","もう付き合っている人向け相性診断","結果はだいたい分かっています",
+  "運命の人か、再確認します","診断しても、表示される相手は変わりません"];
+const personalityOptions=[
+  {emoji:"🌙",label:"夜型"},{emoji:"☀️",label:"明るい"},{emoji:"🔥",label:"熱い"},{emoji:"🧊",label:"冷静"},{emoji:"🌵",label:"距離感あり"},
+  {emoji:"🍵",label:"落ち着く"},{emoji:"🌀",label:"考えすぎ"},{emoji:"🐈",label:"気まぐれ"},{emoji:"🛠️",label:"実務的"},{emoji:"💌",label:"情が深い"}];
+const compatibilityLoadingTexts=[
+  "既読速度を解析中…","ごはんの相談頻度を確認中…","無言でいられる時間を測定中…","疲れている日の返答を照合中…","写真を見返す回数を推定中…"];
+const compatibilityResults=[
+  {score:"96%",title:"今さらです",body:"もうだいたい分かっている相性です。今日は普通に連絡してください。"},
+  {score:"88%",title:"生活圏が近いです",body:"派手な運命ではありませんが、買うものを聞ける関係です。"},
+  {score:"101%",title:"計算が少し壊れました",body:"表示できる相手がこの人しかいません。"},
+  {score:"72%",title:"今日は様子見です",body:"相性はありますが、今日は眠そうです。短めに話しましょう。"},
+  {score:"100%",title:"診断不要です",body:"このアプリでは、すでに運命の人として処理されています。"}];
+const oshiCompatibilityResults=[
+  {score:"84%",title:"距離感は悪くありません",body:"近づきすぎずに見られています。今日はこれくらいで十分そうです。"},
+  {score:"71%",title:"少し見すぎています",body:"気になる気持ちはありますが、生活の中までは見ない方がよさそうです。"},
+  {score:"93%",title:"静かに続いています",body:"その人の一日を遠くから想像するくらいが、今はちょうどよさそうです。"}];
+
+/* 写真トリミング（簡易・すべて端末内で処理） */
+const cropState={list:[],idx:0,done:null,img:null,base:1,zoom:1,ox:0,oy:0,S:240};
+const cropSheet=document.getElementById('cropSheet'),cropImgEl=document.getElementById('cropImg'),
+  cropBoxEl=document.getElementById('cropBox'),cropZoomEl=document.getElementById('cropZoom');
+function startCrop(list,done){cropState.list=list;cropState.idx=0;cropState.done=done;
+  cropSheet.classList.add('show');loadCropItem();}
+function loadCropItem(){const item=cropState.list[cropState.idx];
+  document.getElementById('cropCount').textContent=cropState.list.length>1?`${cropState.idx+1} / ${cropState.list.length} 枚目`:'';
+  const img=new Image();img.onload=()=>{cropState.img=img;
+    cropState.base=cropState.S/Math.min(img.naturalWidth,img.naturalHeight);
+    cropState.zoom=1;cropState.ox=0;cropState.oy=0;cropZoomEl.value=100;
+    cropImgEl.src=item.full;paintCrop();};img.src=item.full;}
+function paintCrop(){const st=cropState;if(!st.img)return;const sc=st.base*st.zoom,
+    w=st.img.naturalWidth*sc,h=st.img.naturalHeight*sc;
+  const mx=Math.max(0,(w-st.S)/2),my=Math.max(0,(h-st.S)/2);
+  st.ox=Math.max(-mx,Math.min(mx,st.ox));st.oy=Math.max(-my,Math.min(my,st.oy));
+  cropImgEl.style.width=w+'px';cropImgEl.style.height=h+'px';
+  cropImgEl.style.left=((st.S-w)/2+st.ox)+'px';cropImgEl.style.top=((st.S-h)/2+st.oy)+'px';}
+cropZoomEl.oninput=()=>{cropState.zoom=cropZoomEl.value/100;paintCrop();};
+(function(){let drag=false,lx=0,ly=0;
+  const pt=e=>e.touches?{x:e.touches[0].clientX,y:e.touches[0].clientY}:{x:e.clientX,y:e.clientY};
+  const dn=e=>{drag=true;const p=pt(e);lx=p.x;ly=p.y;};
+  const mv=e=>{if(!drag)return;const p=pt(e);cropState.ox+=p.x-lx;cropState.oy+=p.y-ly;lx=p.x;ly=p.y;paintCrop();if(e.cancelable)e.preventDefault();};
+  const up=()=>{drag=false;};
+  cropBoxEl.addEventListener('mousedown',dn);window.addEventListener('mousemove',mv);window.addEventListener('mouseup',up);
+  cropBoxEl.addEventListener('touchstart',dn,{passive:true});cropBoxEl.addEventListener('touchmove',mv,{passive:false});cropBoxEl.addEventListener('touchend',up);})();
+document.getElementById('cropReset').onclick=()=>{cropState.zoom=1;cropState.ox=0;cropState.oy=0;cropZoomEl.value=100;paintCrop();};
+document.getElementById('cropOk').onclick=()=>{const st=cropState,sc=st.base*st.zoom,img=st.img;if(!img)return;
+  const w=img.naturalWidth*sc,h=img.naturalHeight*sc,cs=st.S/sc;
+  let sx=((w-st.S)/2-st.ox)/sc,sy=((h-st.S)/2-st.oy)/sc;
+  sx=Math.max(0,Math.min(img.naturalWidth-cs,sx));sy=Math.max(0,Math.min(img.naturalHeight-cs,sy));
+  const c=document.createElement('canvas');c.width=512;c.height=512;
+  c.getContext('2d').drawImage(img,sx,sy,cs,cs,0,0,512,512);
+  st.list[st.idx].icon=c.toDataURL('image/jpeg',0.9);st.list[st.idx].lightBg=detectLightBg(img);st.idx++;
+  if(st.idx<st.list.length)loadCropItem();
+  else{cropSheet.classList.remove('show');if(st.done)st.done(st.list);}};
+
+function buildQueue(){const q=[];const n=Math.max(lover.photos.length,5);
+  const ms=shuffle(mobs.slice());let mi=0;const ph=makeLoverPlaceholder();
+  const bs=Math.floor(Math.random()*loverBioLines.length),ls=Math.floor(Math.random()*loverMetaLabels.length),
+    ps=Math.floor(Math.random()*loverPlaceholderLines.length);
+  for(let i=0;i<n;i++){const p=lover.photos[i];
+    q.push({kind:"lover",name:lover.name,photo:p?p.full:null,icon:p?p.icon:ph.icon,
+      phEmoji:p?null:ph.emoji,phLine:p?null:loverPlaceholderLines[(ps+i)%loverPlaceholderLines.length],
+      lightBg:p?!!p.lightBg:true,
+      meta:loverMetaLabels[(ls+i)%loverMetaLabels.length],bio:loverBioLines[(bs+i)%loverBioLines.length]});
+    if(i<n-1)q.push(Object.assign({kind:"mob"},ms[mi++%ms.length]));}
+  return q;}
+
+const deck=document.getElementById('deck');
+let queue=[],pos=0,matches=[],listShown=false,busy=false;
+
+function render(){deck.innerHTML='';
+  if(pos>=queue.length){deck.innerHTML='<div class="empty">スワイプ完了！<br>運命の相手が待っています…</div>';return;}
+  const slice=[];for(let i=0;i<3;i++){if(queue[pos+i])slice.push({data:queue[pos+i],depth:i});}
+  slice.reverse().forEach(({data,depth})=>{const card=document.createElement('div');
+    card.className='card '+(data.kind==='lover'&&data.lightBg?'light-bg':'dark-bg');
+    card.style.transform=`translateY(${depth*10}px) scale(${1-depth*0.04})`;card.style.zIndex=10-depth;
+    let inner='';
+    if(data.kind==='lover'){
+      inner=data.photo?`<div class="photo" style="background-image:url('${data.photo}')"></div>`
+        :`<div class="placeholder"><div class="ico">${data.phEmoji||'❤️'}</div><small>${data.phLine||'まだ写真はありません。'}</small></div>`;
+      inner+=`<div class="scrim"><div class="who"><span class="name">${data.name}</span><span class="verified">✔</span></div><div class="meta">${data.meta}</div><div class="bio">${data.bio}</div></div>`;
+    }else{inner=`<div class="mob">${data.emoji}</div><div class="scrim"><div class="who"><span class="name">${data.name}</span><span class="age">${data.age}</span></div><div class="bio">${data.bio}</div><div class="meta">相手：${data.partnerEmoji} ${data.partnerName} ${data.partnerAge}</div></div>`;}
+    inner+=`<div class="stamp like">LIKE</div><div class="stamp nope">NOPE</div>`;card.innerHTML=inner;
+    if(depth===0)attachDrag(card);deck.appendChild(card);});}
+
+function swipe(dir){if(busy)return;const data=queue[pos];if(!data)return;
+  if(dir==='nope'&&data.kind==='lover'){busy=true;snapBackCard();openLoverNopeConfirm(data);return;}
+  busy=true;
+  const card=deck.lastElementChild;
+  if(card){card.style.transition='transform .35s ease';card.style.transform=`translate(${dir==='like'?500:-500}px,40px) rotate(${dir==='like'?22:-22}deg)`;}
+  setTimeout(()=>{pos++;
+    if(dir==='like'&&data.kind==='lover'){matches.push(data);render();flashMatch(data);}
+    else if(dir==='like'&&data.kind==='mob'){render();openBattle(data);}
+    else{if(data.kind==='mob')showToast(pickRandom((data.nopeComments&&data.nopeComments.length)?data.nopeComments:commonNopeComments));
+      render();busy=false;goNextOrList();}},230);}
+
+/* 運命の人NOPE時の引き戻し */
+let loverNopeStep=0;
+function snapBackCard(){const card=deck.lastElementChild;if(!card)return;
+  card.style.transition='transform .25s ease';card.style.transform='';
+  const lk=card.querySelector('.stamp.like'),np=card.querySelector('.stamp.nope');
+  if(lk)lk.style.opacity=0;if(np)np.style.opacity=0;}
+function loverNopeAvatar(data){return data.icon?`<div class="nope-avatar" style="background-image:url('${data.icon}')"></div>`
+  :`<div class="nope-avatar emo">${data.phEmoji||'❤️'}</div>`;}
+function openLoverNopeConfirm(data){loverNopeStep=1;const inner=document.getElementById('nopeInner');
+  inner.innerHTML=loverNopeAvatar(data)+`<h2>何かの間違いですよね？</h2>
+    <p>${pickRandom(loverNopeFirstMessages)}<br>本当にスキップしますか？</p>
+    <div class="row2"><button class="btn primary" id="nopeCancel">${pickRandom(loverNopeCancelButtons)}</button>
+    <button class="btn ghost" id="nopeContinue">${pickRandom(loverNopeContinueButtons)}</button></div>`;
+  document.getElementById('nopeSheet').classList.add('show');
+  document.getElementById('nopeCancel').onclick=closeLoverNope;
+  document.getElementById('nopeContinue').onclick=()=>secondLoverNope(data);}
+function secondLoverNope(data){loverNopeStep=2;const inner=document.getElementById('nopeInner');
+  inner.innerHTML=loverNopeAvatar(data)+`<h2>本当にですか？</h2>
+    <p>${pickRandom(loverNopeSecondMessages)}</p>
+    <div class="row2"><button class="btn ghost" id="nopeBack">戻る</button>
+    <button class="btn primary" id="nopeFinal">${pickRandom(loverNopeFinalButtons)}</button></div>`;
+  document.getElementById('nopeBack').onclick=closeLoverNope;
+  document.getElementById('nopeFinal').onclick=()=>forcedMatch(data);}
+function closeLoverNope(){loverNopeStep=0;document.getElementById('nopeSheet').classList.remove('show');busy=false;
+  const card=deck.lastElementChild;if(card){card.classList.add('shake');setTimeout(()=>card.classList.remove('shake'),450);}}
+function forcedMatch(data){loverNopeStep=0;document.getElementById('nopeSheet').classList.remove('show');
+  const card=deck.lastElementChild;
+  if(card){card.style.transition='transform .35s ease';card.style.transform='translate(500px,40px) rotate(22deg)';}
+  setTimeout(()=>{pos++;matches.push(data);render();flashMatch(data,pickRandom(forcedMatchMessages));},230);}
+
+function flashMatch(data,lineText){
+  const you=document.getElementById('matchYou');const yi=data.icon||data.photo;
+  if(yi){you.style.backgroundImage=`url('${yi}')`;you.textContent='';}else{you.style.backgroundImage='none';you.textContent='❤️';}
+  const meEl=document.getElementById('matchMe');const mi=me.icon||me.photo;
+  if(mi){meEl.style.backgroundImage=`url('${mi}')`;meEl.textContent='';}else{meEl.style.backgroundImage='none';meEl.textContent=me.emoji;}
+  document.getElementById('matchSub').textContent=getRelationCopy().matchText;
+  document.getElementById('matchLine').textContent=lineText||matchLine();
+  const m=document.getElementById('match');m.classList.add('show');burstParticles(m);
+  setTimeout(()=>{m.classList.remove('show');setTimeout(()=>{busy=false;goNextOrList();},300);},1200);}
+
+function burstParticles(container){const ems=['💖','⭐️','✨','💕','🌟','💗','💞'];
+  for(let i=0;i<16;i++){const s=document.createElement('span');s.className='particle';s.textContent=ems[i%ems.length];
+    s.style.left=(Math.random()*100)+'%';s.style.animationDelay=(Math.random()*0.45)+'s';s.style.fontSize=(18+Math.random()*22)+'px';
+    container.appendChild(s);setTimeout(()=>s.remove(),2100);}}
+
+function goNextOrList(){if(pos>=queue.length&&!listShown)showMessageList();}
+
+/* NOPEコメントのトースト */
+let toastTimer=null;
+function showToast(text){const t=document.getElementById('toast');t.textContent=text;t.classList.add('show');
+  clearTimeout(toastTimer);toastTimer=setTimeout(()=>t.classList.remove('show'),900+Math.floor(Math.random()*700));}
+
+function showMessageList(){listShown=true;const scroll=document.getElementById('msgScroll');scroll.innerHTML='';
+  document.getElementById('msgSub').textContent=getRelationCopy().msgSub;
+  // 1. 相性診断広告
+  const ad=document.createElement('div');ad.className='compat-ad';
+  ad.innerHTML=`<div class="adtag">広告</div><b>${pickRandom(compatibilityAdTexts)}</b>
+    <span>名前と性格を入れるだけ。結果はだいたい分かっています。</span>`;
+  ad.onclick=openCompatibilitySheet;scroll.appendChild(ad);
+  // 2. 会話ルーム（関係性に応じて切替）
+  getActiveRooms().forEach((room,idx)=>{const st=getRoomState(room.id);
+    const row=document.createElement('div');row.className='row';
+    const icon=getLoverIconForRoom(idx);
+    const badge=st.isCleared?'<span class="badge done">完了</span>':
+                st.isFailed?'<span class="badge fail">今日は終了</span>':
+                st.isRead?'<span class="badge read">既読</span>':
+                '<span class="badge">未読</span>';
+    row.innerHTML=`<div class="avatar" ${avatarStyle(icon)}>${icon?'':'❤️'}</div>
+      <div class="txt"><b>${lover.name||getRelationCopy().targetName}</b><span>${getRoomTitle(room)}</span>${badge}</div>
+      <div class="time">今</div>`;
+    row.onclick=()=>openLoverRoom(room.id);scroll.appendChild(row);});
+  // 3. モブ相談DM（ランダム）
+  getRandomMobDms().forEach(dm=>{const row=document.createElement('div');row.className='row';
+    row.innerHTML=`<div class="avatar">${dm.senderEmoji}</div>
+      <div class="txt"><b>${dm.senderName}</b><span>${dm.title}</span><span class="badge mob">相談</span></div>
+      <div class="time">さっき</div>`;
+    row.onclick=()=>openMobDm(dm.id);scroll.appendChild(row);});
+  document.getElementById('msglist').classList.add('show');}
+
+function getLoverIconForMessage(){
+  if(matches&&matches[0]&&matches[0].icon)return matches[0].icon;
+  if(lover.photos&&lover.photos[0]&&lover.photos[0].icon)return lover.photos[0].icon;
+  const ph=makeLoverPlaceholder();return ph.icon||null;}
+
+function getLoverIconForRoom(idx){
+  if(lover.photos&&lover.photos.length){
+    const n=lover.photos.length;
+    const p=lover.photos[((idx%n)+n)%n];
+    if(p&&p.icon)return p.icon;}
+  return getLoverIconForMessage();}
+
+function avatarStyle(icon){
+  return icon?`style="background-image:url('${icon}');background-size:cover;background-position:center;background-repeat:no-repeat;"`:"";}
+
+function getRoomTitle(room){
+  const type=lover.relationshipType;
+  const titles={
+    lover:{food:"今日のごはんどうする？",work:"仕事の話、少し聞いて",photo:"この写真、どう思う？",plan:"明日どうする？",night:"眠いけど少し話す"},
+    family:{food:"今日ちゃんと食べた？",work:"最近どう？",photo:"この写真送っていい？",plan:"今度いつ会う？",night:"遅いけど少しだけ"},
+    partner:{food:"今日の食事を決める",work:"仕事の話を共有する",photo:"写真を確認する",plan:"明日の予定を決める",night:"夜に少し話す"}};
+  if(type==="oshi")return room.title;
+  return titles[type]?.[room.id]||room.title;}
+
+function validateRoomChoices(){
+  const allRooms=loverRooms.concat(typeof oshiRooms!=="undefined"?oshiRooms:[]);
+  allRooms.forEach(room=>{room.steps.forEach((step,idx)=>{
+    const hasDirect=step.choices.some(c=>c.answerType==="direct");
+    if(!hasDirect)console.warn(`${room.id} の ${idx} 番目の質問に direct 回答がありません`);});});}
+
+function getRandomMobDms(){const pool=mobDms.filter(dm=>!answeredDmIds.has(dm.id));const result=[];
+  if(pool.length&&Math.random()<0.5)result.push(pickRandom(pool));
+  if(Math.random()<0.2){const rest=pool.filter(dm=>!result.includes(dm));if(rest.length)result.push(pickRandom(rest));}
+  return result;}
+
+/* トークルーム会話ゲーム（5ルーム制・気分で正解が変わる） */
+const AFF_START=50;
+const roomStates={};
+let currentChatType="lover",currentRoom=null,currentMobDm=null,currentMoodId=null;
+let affection=AFF_START,qIndex=0,affTimer=null;
+const chatBody=document.getElementById('chatBody'),choicesEl=document.getElementById('choices');
+
+const roomClosedLines=["この会話は終了しています。","言ったことは、取り消せません。","続きは、また別の日になります。"];
+function getActiveRooms(){return lover.relationshipType==="oshi"?oshiRooms:loverRooms;}
+function getRoomState(roomId){
+  if(!roomStates[roomId]){const room=getActiveRooms().find(r=>r.id===roomId);
+    roomStates[roomId]={roomId,affection:AFF_START,isCleared:false,isFailed:false,isRead:false,isFinished:false,
+      moodId:pickRandom(room.moods),turnCount:0,usedStepIndexes:[],cutInStampShown:false,currentStepData:null,log:[]};}
+  return roomStates[roomId];}
+
+function updateAff(delta){document.getElementById('affFill').style.width=affection+'%';
+  const lbl=document.getElementById('affLabel');const label=getRelationCopy().affectionLabel;
+  if(delta){lbl.innerHTML=`${label} ${affection}% <span class="dchip ${delta>0?'up':'down'}">${delta>0?'+':''}${delta}</span>`;
+    clearTimeout(affTimer);affTimer=setTimeout(()=>{lbl.textContent=`${label} ${affection}%`;},1100);}
+  else{lbl.textContent=`${label} ${affection}%`;}}
+function bubbleEl(cls,text){const b=document.createElement('div');b.className=cls;b.textContent=text;
+  chatBody.appendChild(b);chatBody.scrollTop=chatBody.scrollHeight;}
+function logRoom(type,text){if(currentChatType==='lover'&&currentRoom)getRoomState(currentRoom.id).log.push({type,text});}
+function renderLog(st){chatBody.innerHTML='';
+  st.log.forEach(m=>bubbleEl(m.type==='sys'?'sysline':'bubble '+m.type,m.text));}
+function pushThem(text,cb){bubbleEl('bubble them',text);logRoom('them',text);if(cb)setTimeout(cb,750);}
+function pushMe(text){bubbleEl('bubble me',text);logRoom('me',text);}
+function pushSys(text){bubbleEl('sysline',text);logRoom('sys',text);}
+function roomMoodText(delta){
+  if(delta>=12)return"少し安心したようです。";
+  if(delta>=5)return"悪くなさそうです。";
+  if(delta>=0)return"いつも通りです。";
+  if(delta>=-10)return"少し間がありました。";
+  return"返事が短くなりました。";}
+
+/* 性格補正：基本変動を相手の性格パラメータで補正する */
+function applyPersonalityDelta(baseDelta,choice){
+  const p=lover.personality||{};
+  let delta=baseDelta;
+  const flexible=p.flexible??3,kind=p.kind??3,delicate=p.delicate??3,
+        bright=p.bright??3,tsukkomi=p.tsukkomi??3,damp=p.damp??3;
+  const tags=choice.tags||[];
+  const type=choice.answerType||"soft";
+  // 柔軟性：高いほどズレやボケを許す。低いほど正解が狭い。
+  if(flexible<=2&&(type==="avoid"||type==="weird"))delta-=6;
+  if(flexible>=4&&(type==="soft"||type==="weird"))delta+=4;
+  // 優しさ：高いほどマイナスを少し緩和。低いほど刺さる。
+  if(kind>=4&&delta<0)delta+=4;
+  if(kind<=2&&delta<0)delta-=4;
+  // デリカシー
+  if(delicate<=2&&tags.includes("reassure"))delta-=2;
+  if(delicate>=4&&tags.includes("care"))delta+=3;
+  // 明るさ：高いほど会話が戻りやすい。
+  if(bright>=4&&delta<0)delta+=3;
+  if(bright<=2&&delta<0)delta-=3;
+  // ツッコミ：高いと変な選択肢を拾ってくれる。
+  if(tsukkomi>=4&&(type==="weird"||tags.includes("joke")))delta+=8;
+  if(tsukkomi<=2&&(type==="weird"||tags.includes("joke")))delta-=8;
+  // ジメジメ：不安・噂・嫉妬・見捨てられ感に強く反応。
+  if(damp>=4&&(tags.includes("jealous")||tags.includes("rumor")||tags.includes("abandon")||tags.includes("dismissive")))delta-=10;
+  // サバサバ：多少雑でも流す。
+  if(damp<=2&&(tags.includes("dismissive")||tags.includes("tease")))delta+=3;
+  // 直接回答には小さな安定補正。
+  if(type==="direct")delta+=2;
+  return Math.max(-30,Math.min(30,delta));}
+
+/* 性格による返答文 */
+function makePersonalityReply(choice,delta){
+  const p=lover.personality||{};
+  const tsukkomi=p.tsukkomi??3,damp=p.damp??3,kind=p.kind??3,bright=p.bright??3;
+  const type=choice.answerType||"soft";
+  const tags=choice.tags||[];
+  if(type==="weird"&&tsukkomi>=4){
+    return pickRandom(["なにそれ。でも少し笑った。","今その返し？まあ嫌いじゃない。","急に変だけど、ちょっと元気出た。","意味は分からないけど、少し楽になった。"]);}
+  if(type==="weird"&&tsukkomi<=2){
+    return pickRandom(["なにそれ？","ちょっと意味が分からない。","今それ言うところだった？","話がどこかへ行った。"]);}
+  if(damp>=4&&tags.includes("abandon")){
+    return pickRandom(["それ、見捨てる感じに聞こえる。","もういいってこと？","なんか少し距離を感じた。","急に終わらせようとしてる？"]);}
+  if(damp>=4&&tags.includes("jealous")){
+    return pickRandom(["それ、誰の話？","今その話するんだ。","なんか少し嫌な感じがした。"]);}
+  if(kind<=2&&delta<0){
+    return pickRandom(["それはない。","今の返し、雑じゃない？","もう少し考えてほしかった。","はい、そうですか。"]);}
+  if(bright<=2&&delta<0){
+    return pickRandom(["そっか。","うん、もういいかも。","今日はやめとく。","返す言葉が少しなくなった。"]);}
+  if(delta>=12)return choice.replies?.good||"それはうれしい。";
+  if(delta<0)return choice.replies?.bad||"ちょっと違うかも。";
+  return pickRandom(["うん。","そっか。","まあ、それでいいかも。","了解。"]);}
+
+/* 恋人ルーム */
+function openChat(){openLoverRoom("food");}
+function openLoverRoom(roomId){
+  currentChatType="lover";currentMobDm=null;
+  currentRoom=getActiveRooms().find(r=>r.id===roomId);
+  const st=getRoomState(roomId);
+  st.isRead=true;
+  currentMoodId=st.moodId;affection=st.affection;
+  const roomIdx=getActiveRooms().findIndex(r=>r.id===roomId);
+  const icon=getLoverIconForRoom(roomIdx);const av=document.getElementById('chatAvatar');
+  if(icon){av.style.backgroundImage=`url('${icon}')`;av.style.backgroundSize='cover';
+    av.style.backgroundPosition='center';av.style.backgroundRepeat='no-repeat';av.textContent='';}
+  else{av.style.backgroundImage='none';av.textContent='❤️';}
+  document.getElementById('chatName').textContent=lover.name||getRelationCopy().targetName;
+  chatBody.innerHTML='';choicesEl.innerHTML='';clearTimeout(affTimer);updateAff();
+  document.getElementById('chat').classList.add('show');
+  if(st.isFinished){renderLog(st);bubbleEl('sysline',pickRandom(roomClosedLines));showRoomEndButtons();return;}
+  if(st.log.length){renderLog(st);
+    if(st.currentStepData)showRoomChoices(buildRoomChoices(st.currentStepData,st));
+    else askRoomQuestion();
+    return;}
+  askRoomQuestion();}
+
+function getNextRoomStep(room,st){
+  if(!st.usedStepIndexes)st.usedStepIndexes=[];
+  let unused=room.steps.map((step,index)=>({step,index})).filter(it=>!st.usedStepIndexes.includes(it.index));
+  if(unused.length===0){st.usedStepIndexes=[];unused=room.steps.map((step,index)=>({step,index}));}
+  const picked=pickRandom(unused);
+  st.usedStepIndexes.push(picked.index);
+  return picked.step;}
+function injectCutoffStampChoice(choices){
+  const copied=choices.slice();
+  if(copied.length>=4){copied[Math.floor(Math.random()*copied.length)]=pickRandom(cutoffStampChoices);}
+  else{copied.push(pickRandom(cutoffStampChoices));}
+  return copied;}
+function buildRoomChoices(step,st){
+  let choices=step.choices.slice();
+  if(st.turnCount>=20)choices=injectCutoffStampChoice(choices);
+  if(st.turnCount>=30)choices=injectCutoffStampChoice(choices);
+  return shuffle(choices).slice(0,4);}
+function askRoomQuestion(){if(!currentRoom)return;
+  const st=getRoomState(currentRoom.id);
+  if(st.turnCount>=35){finishLongChatByFatigue();return;}
+  const step=getNextRoomStep(currentRoom,st);
+  st.currentStepData=step;
+  pushThem(step.q,()=>showRoomChoices(buildRoomChoices(step,st)));}
+function showRoomChoices(choices){choicesEl.innerHTML='';
+  choices.forEach(choice=>{const b=document.createElement('button');
+    b.innerHTML=`<span class="e">${choice.e}</span>${choice.t}`;
+    b.onclick=()=>chooseRoomOption(choice);choicesEl.appendChild(b);});}
+function chooseRoomOption(choice){
+  const st=getRoomState(currentRoom.id);
+  st.currentStepData=null;
+  choicesEl.innerHTML='';pushMe(`${choice.e} ${choice.t}`);
+  st.turnCount++;
+  const rawDelta=choice.effects?.[currentMoodId]??choice.effects?.default??0;
+  const delta=applyPersonalityDelta(rawDelta,choice);
+  affection=Math.max(0,Math.min(100,affection+delta));
+  st.affection=affection;updateAff(delta);
+  const reply=makePersonalityReply(choice,delta);
+  setTimeout(()=>{pushThem(reply,()=>{
+    if(affection>=100){st.isCleared=true;st.isFinished=true;showAffectionResult("success");return;}
+    if(affection<=0){st.isFailed=true;st.isFinished=true;showAffectionResult("fail");return;}
+    pushSys(roomMoodText(delta));
+    if(st.turnCount===20){pushSys(pickRandom([
+      "会話が少し長くなってきました。","そろそろ相手が疲れてきたようです。","スタンプで返してもよさそうです。"]));}
+    setTimeout(askRoomQuestion,700);});},450);}
+function finishLongChatByFatigue(){
+  const st=getRoomState(currentRoom.id);
+  st.isFinished=true;st.currentStepData=null;
+  pushThem(pickRandom(["そろそろ寝るね。","ちょっと疲れてきた。","またあとで話そう。","今日はここまでにしよう。"]),()=>{
+    pushSys(pickRandom(["会話は自然に終わりました。","相手はスタンプだけ返してきました。","今日は切り上げた方がよさそうです。"]));
+    showRoomEndButtons();});}
+
+/* 結果オーバーレイ */
+function showAffectionResult(type){
+  const overlay=document.getElementById('resultOverlay'),card=document.getElementById('resultCard');
+  const isSuccess=type==="success";
+  const copy=getRelationCopy();
+  const message=pickRandom(isSuccess?copy.resultSuccess:copy.resultFail);
+  document.getElementById('resultPercent').textContent=isSuccess?"100%":"0%";
+  document.getElementById('resultText').textContent=message;
+  card.classList.remove('success','fail');card.classList.add(isSuccess?'success':'fail');
+  overlay.classList.add('show');
+  pushSys(message);showRoomEndButtons();}
+document.getElementById('resultClose').onclick=()=>{document.getElementById('resultOverlay').classList.remove('show');};
+
+/* ルーム終了（やり直しは無い。言葉は取り返せない） */
+function showRoomEndButtons(){choicesEl.innerHTML='';
+  const back=document.createElement('button');back.className='endbtn';back.textContent='メッセージ一覧に戻る';
+  back.onclick=()=>{document.getElementById('chat').classList.remove('show');showMessageList();};
+  choicesEl.appendChild(back);}
+
+/* モブ相談DM（2往復・ポイント制） */
+const answeredDmIds=new Set();
+let dmStep=0,dmScore=0;
+function openMobDm(dmId){
+  currentChatType="mob";currentRoom=null;
+  currentMobDm=mobDms.find(dm=>dm.id===dmId);
+  dmStep=0;dmScore=0;
+  const av=document.getElementById('chatAvatar');
+  av.style.backgroundImage='none';av.textContent=currentMobDm.senderEmoji;
+  document.getElementById('chatName').textContent=currentMobDm.senderName;
+  clearTimeout(affTimer);
+  document.getElementById('affLabel').textContent="相談DM";
+  document.getElementById('affFill').style.width="0%";
+  chatBody.innerHTML='';choicesEl.innerHTML='';
+  document.getElementById('chat').classList.add('show');
+  askMobDmQuestion();}
+function askMobDmQuestion(){const step=currentMobDm.steps[dmStep];
+  pushThem(step.message,()=>showMobDmChoices(step.choices));}
+function showMobDmChoices(choices){choicesEl.innerHTML='';
+  choices.forEach(choice=>{const b=document.createElement('button');
+    b.innerHTML=`<span class="e">${choice.e}</span>${choice.t}`;
+    b.onclick=()=>chooseMobDm(choice);choicesEl.appendChild(b);});}
+function chooseMobDm(choice){choicesEl.innerHTML='';pushMe(`${choice.e} ${choice.t}`);
+  dmScore+=choice.point||0;
+  setTimeout(()=>{pushThem(choice.reply,()=>{
+    dmStep++;
+    if(dmStep<currentMobDm.steps.length){setTimeout(askMobDmQuestion,700);return;}
+    const result=dmScore>=2?"solved":(dmScore<=-1?"worsened":"unresolved");
+    pushSys(mobDmResultMessages[result]);
+    answeredDmIds.add(currentMobDm.id);
+    choicesEl.innerHTML='<button class="endbtn" id="backList">メッセージ一覧に戻る</button>';
+    document.getElementById('backList').onclick=()=>{document.getElementById('chat').classList.remove('show');showMessageList();};});},450);}
+
+/* 相性診断 */
+let compatYourSelected="🌙",compatPartnerSelected="🍵";
+function initCompatibility(){
+  const yourBox=document.getElementById('compatYourType'),partnerBox=document.getElementById('compatPartnerType');
+  yourBox.innerHTML='';partnerBox.innerHTML='';
+  personalityOptions.forEach((opt,idx)=>{
+    const b1=document.createElement('button');b1.textContent=opt.emoji;if(idx===0)b1.classList.add('sel');
+    b1.onclick=()=>{compatYourSelected=opt.emoji;
+      yourBox.querySelectorAll('button').forEach(b=>b.classList.remove('sel'));b1.classList.add('sel');};
+    yourBox.appendChild(b1);
+    const b2=document.createElement('button');b2.textContent=opt.emoji;if(idx===5)b2.classList.add('sel');
+    b2.onclick=()=>{compatPartnerSelected=opt.emoji;
+      partnerBox.querySelectorAll('button').forEach(b=>b.classList.remove('sel'));b2.classList.add('sel');};
+    partnerBox.appendChild(b2);});}
+function openCompatibilitySheet(){
+  document.getElementById('compatSheet').classList.add('show');
+  const partnerInput=document.getElementById('compatPartnerName');
+  if(!partnerInput.value)partnerInput.value=lover.name||"";
+  document.getElementById('compatLoading').textContent='';
+  document.getElementById('compatResult').classList.remove('show');}
+document.getElementById('compatClose').onclick=()=>{document.getElementById('compatSheet').classList.remove('show');};
+document.getElementById('compatStart').onclick=()=>{
+  const loading=document.getElementById('compatLoading'),resultBox=document.getElementById('compatResult');
+  resultBox.classList.remove('show');
+  let i=0;loading.textContent=compatibilityLoadingTexts[i];
+  const timer=setInterval(()=>{i++;
+    if(i<compatibilityLoadingTexts.length){loading.textContent=compatibilityLoadingTexts[i];}
+    else{clearInterval(timer);
+      const result=pickRandom(lover.relationshipType==="oshi"?oshiCompatibilityResults:compatibilityResults);
+      const yourName=document.getElementById('compatYourName').value.trim()||"あなた";
+      const partnerName=document.getElementById('compatPartnerName').value.trim()||(lover.name||"相手");
+      loading.textContent='';
+      resultBox.innerHTML=`<div class="score">${result.score}</div><b>${result.title}</b>
+        <p>${yourName}${compatYourSelected} と ${partnerName}${compatPartnerSelected} の診断結果です。<br>${result.body}</p>`;
+      resultBox.classList.add('show');}},520);};
+
+/* バトル */
+function openBattle(m){const bond=pickRandom(BONDS);const inner=document.getElementById('battleInner');
+  inner.innerHTML=`<h2>ちょっと待った！</h2><p><b>${m.name}</b>には <b>${m.partnerName}</b> という仲良しのパートナーがいます。</p>
+    <div class="battle-rivals"><div class="vs">VS</div><div class="pair-row">${m.emoji}<span class="bond">${bond}</span>${m.partnerEmoji}</div>
+    <div class="partner-name">相手：${m.partnerEmoji} ${m.partnerName}</div>
+    <div class="partner-age">年齢：${m.partnerAge}</div>
+    <div class="rel">${m.relationship}</div>
+    ${m.fightReason?`<div class="fight">最近の喧嘩の理由：${m.fightReason}</div>`:''}</div>
+    <p>割って入るには、バトルに勝つ必要があります。挑みますか？</p>
+    <div class="row2"><button class="btn ghost" id="retreatBtn">やめておく</button><button class="btn primary" id="fightBtn">バトルする</button></div>`;
+  document.getElementById('battleSheet').classList.add('show');
+  document.getElementById('retreatBtn').onclick=()=>{closeBattle();
+    showToast(pickRandom((m.nopeComments&&m.nopeComments.length)?m.nopeComments:commonNopeComments));};
+  document.getElementById('fightBtn').onclick=()=>{const lose=pickRandom((m.battleLosses&&m.battleLosses.length)?m.battleLosses:["…完敗でした。"]);
+    inner.innerHTML=`<h2 style="color:var(--nope)">YOU LOSE…</h2><div class="lose-emoji">😵</div>
+      <p style="text-align:center"><b>敗因：</b>${lose}</p><p style="text-align:center">${m.name}との恋は、叶いませんでした。</p>
+      <div class="row2"><button class="btn primary" data-bclose>運命の人に戻る</button></div>`;bindBattleClose();};}
+function closeBattle(){document.getElementById('battleSheet').classList.remove('show');busy=false;goNextOrList();}
+function bindBattleClose(){document.querySelectorAll('[data-bclose]').forEach(b=>b.onclick=closeBattle);}
+
+/* ドラッグ */
+function attachDrag(card){let sx=0,dx=0,drag=false;
+  const like=card.querySelector('.stamp.like'),nope=card.querySelector('.stamp.nope');
+  const pt=e=>e.touches?{x:e.touches[0].clientX}:{x:e.clientX};
+  const down=e=>{if(busy)return;drag=true;sx=pt(e).x;card.style.transition='none';};
+  const move=e=>{if(!drag)return;dx=pt(e).x-sx;card.style.transform=`translate(${dx}px,0) rotate(${dx*0.06}deg)`;
+    const k=Math.min(Math.abs(dx)/120,1);like.style.opacity=dx>0?k:0;nope.style.opacity=dx<0?k:0;};
+  const up=()=>{if(!drag)return;drag=false;if(Math.abs(dx)>110){swipe(dx>0?'like':'nope');}
+    else{card.style.transition='transform .25s ease';card.style.transform='';like.style.opacity=0;nope.style.opacity=0;}dx=0;};
+  card.addEventListener('mousedown',down);window.addEventListener('mousemove',move);window.addEventListener('mouseup',up);
+  card.addEventListener('touchstart',down,{passive:true});card.addEventListener('touchmove',move,{passive:true});card.addEventListener('touchend',up);}
+
+/* セットアップ */
+const photoInput=document.getElementById('photoInput'),pickedInfo=document.getElementById('pickedInfo');
+document.getElementById('pickBtn').onclick=()=>photoInput.click();
+photoInput.onchange=()=>{const files=[...photoInput.files].slice(0,5);if(!files.length)return;
+  pickedInfo.textContent='読み込み中…';const items=[];let done=0;
+  files.forEach((f,idx)=>{const r=new FileReader();r.onload=e=>{items[idx]={full:e.target.result,icon:null};
+    if(++done===files.length){startCrop(items.filter(Boolean),list=>{lover.photos=list;
+      pickedInfo.innerHTML=list.map(p=>`<img class="thumb" src="${p.icon}" alt="">`).join('')+`<span>写真を${list.length}枚 選びました ✓</span>`;});}};
+    r.readAsDataURL(f);});};
+
+const GENDERS=[{g:"male",t:"男性"},{g:"female",t:"女性"},{g:"other",t:"その他"}];
+const aiteGender=document.getElementById('aiteGender');
+const GBASE='flex:1;text-align:center;padding:13px 4px;font-size:15px;font-weight:700;cursor:pointer;border:0;line-height:1.4;font-family:inherit;-webkit-appearance:none;appearance:none;border-radius:0;margin:0;';
+function paintGender(){GENDERS.forEach((o,i)=>{const b=aiteGender.children[i];if(!b)return;const on=o.g===lover.gender;
+  b.style.cssText=GBASE+(on?'background:linear-gradient(100deg,#ff7a8a,#ff4d6d);color:#fff;':'background:transparent;color:#d24a63;')
+    +(i<GENDERS.length-1?'border-right:1px solid #ffe0e6;':'');});}
+GENDERS.forEach(o=>{const b=document.createElement('button');b.type='button';b.textContent=o.t;
+  b.onclick=()=>{lover.gender=o.g;paintGender();};aiteGender.appendChild(b);});
+paintGender();
+
+const meEmojiBox=document.getElementById('meEmojis');
+ME_EMOJIS.forEach((em,i)=>{const b=document.createElement('button');b.textContent=em;if(i===0)b.classList.add('sel');
+  b.onclick=()=>{me.emoji=em;me.photo=null;me.icon=null;document.getElementById('mePickedInfo').textContent='';
+    meEmojiBox.querySelectorAll('button').forEach(x=>x.classList.remove('sel'));b.classList.add('sel');};meEmojiBox.appendChild(b);});
+const mePhotoInput=document.getElementById('mePhotoInput');
+document.getElementById('mePickBtn').onclick=()=>mePhotoInput.click();
+mePhotoInput.onchange=()=>{const f=mePhotoInput.files[0];if(!f)return;const r=new FileReader();
+  r.onload=e=>{startCrop([{full:e.target.result,icon:null}],list=>{me.photo=list[0].full;me.icon=list[0].icon;
+    document.getElementById('mePickedInfo').innerHTML=`<img class="thumb" src="${list[0].icon}" alt=""><span>自分の写真を設定しました ✓</span>`;
+    meEmojiBox.querySelectorAll('button').forEach(x=>x.classList.remove('sel'));});};r.readAsDataURL(f);};
+
+function startApp(){const nm=document.getElementById('nameInput').value.trim();if(nm)lover.name=nm;
+  queue=buildQueue();pos=0;matches=[];listShown=false;busy=false;render();document.getElementById('setup').classList.add('hide');}
+document.getElementById('startBtn').onclick=()=>document.getElementById('personalitySheet').classList.add('show');
+document.getElementById('personalityStart').onclick=()=>{document.getElementById('personalitySheet').classList.remove('show');startApp();};
+document.getElementById('skipBtn').onclick=startApp;
+
+document.getElementById('likeBtn').onclick=()=>swipe('like');
+document.getElementById('nopeBtn').onclick=()=>swipe('nope');
+document.getElementById('chatBack').onclick=()=>{
+  document.getElementById('chat').classList.remove('show');
+  if(document.getElementById('msglist').classList.contains('show')){showMessageList();}};
+document.getElementById('restartBtn').onclick=()=>location.reload();
+document.getElementById('ceoBtn').onclick=()=>document.getElementById('ceoSheet').classList.add('show');
+document.querySelectorAll('[data-ceoclose]').forEach(b=>b.onclick=()=>document.getElementById('ceoSheet').classList.remove('show'));
+document.getElementById('ceoSheet').addEventListener('click',e=>{if(e.target.id==='ceoSheet')document.getElementById('ceoSheet').classList.remove('show');});
+
+/* 関係性・性格パラメータUI */
+function initRelationshipPicker(){
+  const box=document.getElementById("relationshipPicker");box.innerHTML="";
+  relationshipTypes.forEach(type=>{
+    const btn=document.createElement("button");
+    btn.innerHTML=`${type.emoji}<br>${type.label}`;
+    if(type.id===lover.relationshipType)btn.classList.add("sel");
+    btn.onclick=()=>{lover.relationshipType=type.id;
+      box.querySelectorAll("button").forEach(b=>b.classList.remove("sel"));btn.classList.add("sel");};
+    box.appendChild(btn);});}
+function initPersonalityBox(){
+  const box=document.getElementById("personalityBox");box.innerHTML="";
+  personalityParams.forEach(param=>{
+    const row=document.createElement("div");row.className="param-row";
+    row.innerHTML=`<div class="param-head"><span>${param.label}</span><span>${param.lowLabel} ← → ${param.highLabel}</span></div><div class="scale"></div>`;
+    const scale=row.querySelector(".scale");
+    for(let i=1;i<=5;i++){const b=document.createElement("button");b.textContent=i;
+      if((lover.personality[param.id]||3)===i)b.classList.add("sel");
+      b.onclick=()=>{lover.personality[param.id]=i;
+        scale.querySelectorAll("button").forEach(btn=>btn.classList.remove("sel"));b.classList.add("sel");};
+      scale.appendChild(b);}
+    box.appendChild(row);});}
+
+initRelationshipPicker();
+initPersonalityBox();
+validateRoomChoices();
+initCompatibility();
+render();
+</script>
+</body>
+</html>
